@@ -5,32 +5,29 @@ import java.awt.Rectangle;
 
 import java.io.Serializable;
 
-public class clsEnlace implements Serializable
+public class clsRelacion implements Serializable
 {
   //private 
   private int id;
   private int origen;       //  SI ES UN ACTOR O UNA CLASE (id)
   private int destino;      //  ES UNA CLASE (id)
-  private clsMetodo objmetodo;
   
   private Rectangle enlace;
   private Point o, d;
 
-  public clsEnlace()
+  public clsRelacion()
   {
-    id = origen = destino = 0;
-    objmetodo = new clsMetodo();
+    id = origen = destino = 0;    
     enlace = new Rectangle();
     o = new Point();
     d = new Point();
   }
   
-  public clsEnlace(int id, int origen, int destino, clsMetodo objmetodo, Point o, Point d)
+  public clsRelacion(int id, int origen, int destino, Point o, Point d)
   {
     this.id         = id;
     this.origen     = origen;
     this.destino    = destino;
-    this.objmetodo  = objmetodo;
     //this.enlace     = enlace;
     /*o = new Point(this.enlace.x, this.enlace.y + (this.enlace.height/2));
     d = new Point(this.enlace.x + this.enlace.width, this.enlace.y + (this.enlace.height/2));
@@ -73,16 +70,6 @@ public class clsEnlace implements Serializable
   public void setDestino(int destino)
   {
     this.destino = destino;
-  }
-
-  public clsMetodo getObjmetodo()
-  {
-    return objmetodo;
-  }
-
-  public void setObjmetodo(clsMetodo objmetodo)
-  {
-    this.objmetodo = objmetodo;
   }
 
   public Rectangle getEnlace()

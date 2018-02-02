@@ -13,13 +13,13 @@ import javax.swing.border.BevelBorder;
 public class graficadorDiagSec extends JPanel
 {
   private control objcontrol;
-  private clsDiagramaSecuencia objds = null;
+  private clsDiagrama objds = null;
   private interfaceServidor objservidor;
   private Object figura = null;      //  figura => si el objecto es selecionado(actor, clase, conector)*/
   
-  private clsClase objclase = null;
+  private clsTabla objclase = null;
   private clsActor objactor = null;
-  private clsEnlace objconector = null;
+  private clsRelacion objconector = null;
   
   public graficadorDiagSec(interfaceServidor objservidor)
   {
@@ -56,145 +56,60 @@ public class graficadorDiagSec extends JPanel
     
     g2.setFont(new Font("Dialog", 0, 10));
     
-    dibujarActor(g2);
-    dibujarClase(g2);
-    dibujarConector(g2);
-    
-    
-    /*g2.drawRect(80, 50, 40, 8);
-    g2.drawRect(120, 80, 40, 8);*/
-  }
-  
-  private void dibujarActor(Graphics2D g2)
-  {
-    LinkedList<clsActor> actor = objds.getActor();
-    int dim = actor.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsActor objactor = actor.get(i);
-      //System.out.println("OBJ - ACTOR => "+objactor.getSuperior());
-      Rectangle sup = objactor.getSuperior();
-      //Rectangle inf = objactor.getInferior();
-      Point o = objactor.getPuntoO();
-      Point d = objactor.getPuntoD();
+    dibujarTabla(g2);
+    dibujarRelacion(g2);
 
-      int w = sup.width*30/100;
-      //int h = sup.height*25/100;
-      int h = sup.height*20/100;
-      int x = sup.width*35/100;
-      //int y = sup.y;
-      g2.drawOval(sup.x+x, sup.y, w, h);
-      g2.drawLine(sup.x+x+(w/2), sup.y+h, sup.x+x+(w/2), sup.y+h+h);
-      g2.drawLine(sup.x+x, sup.y+h+(h/2), sup.x+x+w, sup.y+h+(h/2));
-      g2.drawLine(sup.x+x+(w/2), sup.y+h+h, sup.x+x, sup.y+(3*h));
-      g2.drawLine(sup.x+x+(w/2), sup.y+h+h, sup.x+x+w, sup.y+(3*h));
-      //int xxx = sup.x+x+(w/2);
-      int lon = objactor.getNombre().length()/2;
-      g2.drawString(objactor.getNombre(), (sup.x*2+sup.width)/2-(lon*5), sup.y+(3*h+(h/2)+5));
-      
-      //System.out.println("x = "+xxx+", w = "+sup.width);
-      //g2.drawLine(inf.x+(inf.width/2), inf.y, inf.x+(inf.width/2), inf.y+inf.height);
-      g2.drawLine(o.x, o.y, d.x, d.y);
-      
-      //if (figura instanceof actor && objactor.getId() == ((actor)figura).getId())
-      if (this.objactor != null && this.objactor.getId() == objactor.getId())
-      {
-        g2.fillRect(sup.x-5, sup.y-5, 5, 5);
-        g2.fillRect(sup.x+sup.width, sup.y-5, 5, 5);
-        g2.fillRect(sup.x-5, sup.y+sup.height, 5, 5);
-        g2.fillRect(sup.x+sup.width, sup.y+sup.height, 5, 5);
-        //g2.fillRect(inf.x+(inf.width/2)-2, inf.y+inf.height, 5, 5);
-        g2.fillRect(d.x-2, d.y, 5, 5);
-      }
-    }
-  }
+  }  
   
-  private void dibujarClase(Graphics2D g2)
+  private void dibujarTabla(Graphics2D g2)
   {
-    LinkedList<clsClase> clase = objds.getClase();
-    int dim = clase.size();
+    LinkedList<clsTabla> tablas = objds.getTablas();
+    int dim = tablas.size();
     for (int i = 0; i < dim; i++)
     {
-      clsClase objclase = clase.get(i);
-      //System.out.println("GRAFICADOR TIPO => "+objclase.getTipo());
-      if (objclase.getTipo() == 2)
-      {
-      //System.out.println("OBJ - CLASE => "+objclase.getSuperior());
-      Rectangle sup = objclase.getSuperior();
-      //Rectangle inf = objclase.getInferior();
-      Point o = objclase.getPuntoO();
-      Point d = objclase.getPuntoD();
-      
-      int x, y, w, h;
-      if (objclase.getTipo() == 2 && objclase.getClassinterface().equals("Interfaz"))
-      {
-        x = sup.width*20/100;
+        clsTabla objclase = tablas.get(i);        
+        //System.out.println("OBJ - CLASE => "+objclase.getSuperior());
+        Rectangle sup = objclase.getSuperior();
+        //Rectangle inf = objclase.getInferior();
+        Point o = objclase.getPuntoO();
+        Point d = objclase.getPuntoD();
+
+        int x, y, w, h;
+        x = sup.width*30/100;
         y = sup.height*20/100;
-        w = sup.width*60/100;
+        w = sup.width*40/100;
         h = sup.height*60/100;
-        g2.drawLine(sup.x+x, sup.y+y, sup.x+x, sup.y+y+(h*67/100));
-        g2.drawLine(sup.x+x, sup.y+y+((h*67/100)/2), sup.x+x+(w*33/100), sup.y+y+((h*67/100)/2));
-        g2.drawOval(sup.x+x+(w*33/100), sup.y+y, w*67/100, h*67/100);
-        int lon = objclase.getNombre().length()/2;
-        g2.drawString(objclase.getNombre(), (sup.x*2+sup.width)/2-(lon*5), sup.y+y+h);
+        g2.drawOval(sup.x+x, sup.y+y, w, h*67/100);
+        g2.drawLine(sup.x+x+w, sup.y+y+(h*67/100)/2, sup.x+x+(w*80/100), sup.y+y+(h*67/100)*70/100);
+        g2.drawLine(sup.x+x+w, sup.y+y+(h*67/100)/2, sup.x+x+w+(w*20/100), sup.y+y+(h*67/100)*70/100);
+        int lon = objclase.getNombreTabla().length()/2;
+        g2.drawString(objclase.getNombreTabla(), (sup.x*2+sup.width)/2-(lon*5), sup.y+y+h);
         //g2.drawLine(inf.x+(inf.width/2), inf.y, inf.x+(inf.width/2), inf.y+inf.height);
         g2.drawLine(o.x, o.y, d.x, d.y);
-      }
-      else
-      {
-        if (objclase.getTipo() == 2 && objclase.getClassinterface().equals("Proceso"))
-        {
-          x = sup.width*30/100;
-          y = sup.height*20/100;
-          w = sup.width*40/100;
-          h = sup.height*60/100;
-          g2.drawOval(sup.x+x, sup.y+y, w, h*67/100);
-          g2.drawLine(sup.x+x+w, sup.y+y+(h*67/100)/2, sup.x+x+(w*80/100), sup.y+y+(h*67/100)*70/100);
-          g2.drawLine(sup.x+x+w, sup.y+y+(h*67/100)/2, sup.x+x+w+(w*20/100), sup.y+y+(h*67/100)*70/100);
-          int lon = objclase.getNombre().length()/2;
-          g2.drawString(objclase.getNombre(), (sup.x*2+sup.width)/2-(lon*5), sup.y+y+h);
-          //g2.drawLine(inf.x+(inf.width/2), inf.y, inf.x+(inf.width/2), inf.y+inf.height);
-          g2.drawLine(o.x, o.y, d.x, d.y);
-        }
-        else
-        {
-          if (objclase.getTipo() == 2 && objclase.getClassinterface().equals("Entidad"))
-          {
-            x = sup.width*30/100;
-            y = sup.height*20/100;
-            w = sup.width*40/100;
-            h = sup.height*60/100;
-            g2.drawOval(sup.x+x, sup.y+y, w, h*67/100);
-            g2.drawLine(sup.x+x, sup.y+y+(h*67/100), sup.x+x+w, sup.y+y+(h*67/100));
-            int lon = objclase.getNombre().length()/2;
-            g2.drawString(objclase.getNombre(), (sup.x*2+sup.width)/2-(lon*5), sup.y+y+h);
-            g2.drawLine(o.x, o.y, d.x, d.y);
-          }
-        }
-      }
+              
        
-      //if (figura instanceof clase && objclase.getId() == ((clase)figura).getId())
-      if (this.objclase != null && this.objclase.getId() == objclase.getId())
-      {
-        //System.out.println("GRAFICADOR => "+sup);
-        g2.fillRect(sup.x-5, sup.y-5, 5, 5);
-        g2.fillRect(sup.x+sup.width, sup.y-5, 5, 5);
-        g2.fillRect(sup.x-5, sup.y+sup.height, 5, 5);
-        g2.fillRect(sup.x+sup.width, sup.y+sup.height, 5, 5);
-        //g2.fillRect(inf.x+(inf.width/2)-2, inf.y+inf.height, 5, 5);
-        g2.fillRect(d.x-2, d.y, 5, 5);
-      }
-    }
+        //if (figura instanceof clase && objclase.getId() == ((clase)figura).getId())
+        if (this.objclase != null && this.objclase.getId() == objclase.getId())
+        {
+          //System.out.println("GRAFICADOR => "+sup);
+          g2.fillRect(sup.x-5, sup.y-5, 5, 5);
+          g2.fillRect(sup.x+sup.width, sup.y-5, 5, 5);
+          g2.fillRect(sup.x-5, sup.y+sup.height, 5, 5);
+          g2.fillRect(sup.x+sup.width, sup.y+sup.height, 5, 5);
+          //g2.fillRect(inf.x+(inf.width/2)-2, inf.y+inf.height, 5, 5);
+          g2.fillRect(d.x-2, d.y, 5, 5);
+        }
     }
   }
   
-  private void dibujarConector(Graphics2D g2)
+  private void dibujarRelacion(Graphics2D g2)
   {
-    LinkedList<clsEnlace> conector = objds.getConector();
+    /*
+    LinkedList<clsRelacion> conector = objds.getRelacion();
     int dim = conector.size();
     for (int i = 0; i < dim; i++)
     {
-      clsEnlace objconector = conector.get(i);
+      clsRelacion objconector = conector.get(i);
       Point o = objconector.getPuntoO();
       Point d = objconector.getPuntoD();
       
@@ -224,10 +139,6 @@ public class graficadorDiagSec extends JPanel
       if (par.length() > 1)
         par = par.substring(0, par.length() - 2);
       par += ")";
-      /*if (objmetodo.getRetorna().equals("void"))
-        met += par;
-      else
-        met += par + ": "+objmetodo.getRetorna();*/
       met += par;
       String cad = objmetodo.getSecuencia()+". "+met;
       int lon = cad.length()/2;
@@ -243,16 +154,14 @@ public class graficadorDiagSec extends JPanel
         g2.fillRect(d.x, d.y-2, 5, 5);
       }
     }
+    */
   }
 
   public void actualizarGrafica()
   {
     objds       = objcontrol.getObjds();
-    objactor    = objcontrol.objactor;
-    objclase    = objcontrol.objclase;
+    objclase    = objcontrol.objTabla;
     objconector = objcontrol.objconector;
-    //figura  = objcontrol.getFigura();
-    //System.out.println("Figura => "+figura);
     repaint();
   }
 }

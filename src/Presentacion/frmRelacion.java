@@ -26,7 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-public class frmEnlace extends JDialog
+public class frmRelacion extends JDialog
 {
   private JLabel jLabel1 = new JLabel();
   private JComboBox jComboBox1 = new JComboBox();
@@ -36,20 +36,20 @@ public class frmEnlace extends JDialog
   private JTextField jTextField1 = new JTextField();
   
   private control objcontrol;
-  private clsEnlace objconector;
-  private clsClase objclase;
-  private LinkedList<clsMetodo> metodo = new LinkedList<clsMetodo>();
-  private clsMetodo objmetodo;
+  private clsRelacion objconector;
+  private clsTabla objclase;
+  private LinkedList<clsColumna> columnas = new LinkedList<clsColumna>();
+  
   private JButton jButton3 = new JButton();
 
   //private Vector nombre = new Vector();
 
-  public frmEnlace()
+  public frmRelacion()
   {
     this(null, "", false);
   }
 
-  public frmEnlace(Frame parent, String title, boolean modal)
+  public frmRelacion(Frame parent, String title, boolean modal)
   {
     super(parent, title, modal);
   }
@@ -90,7 +90,7 @@ public class frmEnlace extends JDialog
     this.getContentPane().add(jComboBox1, null);
     this.getContentPane().add(jLabel1, null);
     
-    cargarMetodoCombo();
+    cargarColumnaCombo();
     jButton3.setText("Add Metodo");
     jButton3.setBounds(new Rectangle(145, 65, 105, 20));
     jButton3.addActionListener(new ActionListener()
@@ -100,38 +100,18 @@ public class frmEnlace extends JDialog
             jButton3_actionPerformed(e);
           }
         });
-    /*
-     *     for (int i = 0; i < dim; i++)
-    {
-      metodos objmetodo = metodo.get(i);
-      String met = objmetodo.getNombre();
-      LinkedList<parametros> parametro = objmetodo.getParametros();
-      int s = parametro.size();
-      String par = "(";
-      for (int j = 0; j < s; j++)
-      {
-        parametros objparametro = parametro.get(i);
-        par += objparametro.getTipo()+" "+objparametro.getNombre()+", ";
-      }
-      if (par.length() > 3)
-        par = par.substring(0, par.length() - 2);
-      par += ")";
-      met += par+": "+objmetodo.getRetorna();
-      jComboBox1.addItem(met);
-      nombre.add(objmetodo.getNombre());
-    }
-     */
   }
   
-  private void cargarMetodoCombo()
+  private void cargarColumnaCombo()
   {
-    metodo = objclase.getMetodos();
-    int dim = metodo.size();
+      // modificado por limbert
+    /*columnas = objclase.getColumnas();
+    int dim = columnas.size();
     int index = 0;
     jComboBox1.removeAllItems();
     for (int i = 0; i < dim; i++)
     {
-      clsMetodo aux = metodo.get(i);
+      clsColumna aux = columnas.get(i);
       if (aux.getNombre().equals(objmetodo.getNombre()))
         index = i;
       jComboBox1.addItem(aux.getNombre());
@@ -140,11 +120,12 @@ public class frmEnlace extends JDialog
     this.setTitle("Propiedades de un Conector");
     if (dim > 0)
       jComboBox1.setSelectedIndex(index);
-    jTextField1.setText(""+objmetodo.getSecuencia());
+    jTextField1.setText(""+objmetodo.getSecuencia());*/
   }
   
-  public void cargarPropiedad(control objcontrol, clsClase objclase, clsEnlace objconector)
-  {
+  public void cargarPropiedad(control objcontrol, clsTabla objclase, clsRelacion objconector)
+  { // modificado por limbert
+      /*
     try
     {
       this.objcontrol = objcontrol;
@@ -157,6 +138,7 @@ public class frmEnlace extends JDialog
     }
     catch (Exception e)
     { e.printStackTrace();  }
+    */
   }
 
 
@@ -167,17 +149,18 @@ public class frmEnlace extends JDialog
 
   private void jButton3_actionPerformed(ActionEvent e)
   {
-    frmClase formClase = new frmClase(null, "?", true);
+    frmTabla formClase = new frmTabla(null, "?", true);
     formClase.cargarPropiedad(objcontrol, objclase);
     formClase.setVisible(true);
     
-    cargarMetodoCombo();
+    cargarColumnaCombo();
     /*objconector = (conector)objcontrol.getFigura();
     objmetodo = objconector.getObjmetodo();*/
   }
 
   private void baceptar_actionPerformed(ActionEvent e)
   {
+      /*
     System.out.println("index combo => "+jComboBox1.getSelectedIndex());
     int index = jComboBox1.getSelectedIndex();
     if (index >= 0)
@@ -187,7 +170,7 @@ public class frmEnlace extends JDialog
       objconector.setObjmetodo(objmetodo);
       objcontrol.enviarActualizarConector(objconector);
     }
-    this.setVisible(false);
+    this.setVisible(false);*/
   }
 
   private void bcancelar_actionPerformed(ActionEvent e)

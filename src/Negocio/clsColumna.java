@@ -2,7 +2,7 @@ package Negocio;
 
 import java.io.Serializable;
 
-public class clsAtributo implements Serializable
+public class clsColumna implements Serializable
 {
   //private int id;
   private String nombre;
@@ -12,13 +12,13 @@ public class clsAtributo implements Serializable
   /*private boolean add = false;
   private boolean del = false;*/
   
-  public clsAtributo()
+  public clsColumna()
   {
     nombre = tipo = "";
     acceso = "private";
   }
 
-  public clsAtributo(String nombre, String tipo, String acceso)
+  public clsColumna(String nombre, String tipo, String acceso)
   {
     // this.id     = id;
     this.nombre = nombre;

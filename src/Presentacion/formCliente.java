@@ -3,9 +3,9 @@ package Presentacion;
 import Archivo.generarCodigo;
 
 import Archivo.guardarXMI;
-import Archivo.guardarXML;
-import Archivo.leerXMI;
-import Archivo.leerXML;
+//import Archivo.guardarXML;
+//import Archivo.leerXMI;
+//import Archivo.leerXML;
 
 import Negocio.*;
 
@@ -17,17 +17,13 @@ import java.awt.BorderLayout;
 import java.awt.event.*;
 import java.awt.event.ActionEvent;
 
-import java.awt.event.MouseEvent;
 
 import java.io.File;
 
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 
 import java.rmi.*;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -38,12 +34,6 @@ import java.rmi.registry.Registry;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
-import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
 
 public class formCliente extends JFrame implements interfaceEvento
 {
@@ -76,10 +66,9 @@ public class formCliente extends JFrame implements interfaceEvento
   private JMenuItem miGenCod = new JMenuItem();
   private JMenuItem miImportar = new JMenuItem();
   
-  private DynamicTree arbol = new DynamicTree();
   private JScrollPane spgraficador = new JScrollPane();
   private graficadorDiagSec objgraficador;
-  private barraDiagramaSecuencia objdiagrama;
+  private barraToolsCase objdiagrama;
   private barraMenu objmenu;
   //private JPanel jPanel1 = new JPanel(new BorderLayout());
   
@@ -237,27 +226,7 @@ public class formCliente extends JFrame implements interfaceEvento
     Ayuda.setText("Ayuda");
     jMenuItem7.setText("Ayuda");
     jMenuItem8.setText("Acerca de...");
-    arbol.tree.addTreeSelectionListener(new TreeSelectionListener()
-        {
-          public void valueChanged(TreeSelectionEvent e)
-          {
-            DefaultMutableTreeNode node = 
-              (DefaultMutableTreeNode) (e.getPath().getLastPathComponent());
-            // Object nodeInfo = node.getUserObject();
-            System.out.println("UNICO => " + e.getSource());
-            if (!node.isRoot())
-            {
-              if (node.getUserObject() instanceof clsClase)
-              {
-                objgraficador.getObjcontrol().setArbolsw(true);
-                objgraficador.getObjcontrol().setModo("Interfaz");
-                objgraficador.getObjcontrol().setArbolobj((clsClase) node.getUserObject());
-              }
-            }
-          }
-        });
 
-    peste.add(arbol, BorderLayout.CENTER);
     psur.add(pchat);
     this.getContentPane().add(pnorte, BorderLayout.NORTH);
     this.getContentPane().add(psur, BorderLayout.SOUTH);
@@ -295,7 +264,7 @@ public class formCliente extends JFrame implements interfaceEvento
     { e.printStackTrace(); }  
     catch (Exception e) 
     { e.printStackTrace();  }
-    objdiagrama   = new barraDiagramaSecuencia(objgraficador.getObjcontrol());
+    objdiagrama   = new barraToolsCase(objgraficador.getObjcontrol());
     objmenu = new barraMenu(this, objgraficador.getObjcontrol());
     spgraficador.getViewport().add(objgraficador);
     pnorte.add(objmenu);
@@ -315,6 +284,7 @@ public class formCliente extends JFrame implements interfaceEvento
     spchat.getViewport().add(tachat);
   }
   
+  @Override
   public void transferirMensajeChat(transferirEvento objevento)
   { //  OK
     tachat.append(objevento.getMensajeChat() + "\n");
@@ -326,6 +296,7 @@ public class formCliente extends JFrame implements interfaceEvento
     this.requestFocus();*/
   }
            
+  @Override
   public void actualizarListaUsuario(transferirEvento objevento)
   { //  OK
     Vector users = objevento.getListaUsuario();
@@ -336,7 +307,8 @@ public class formCliente extends JFrame implements interfaceEvento
       System.out.println("USER i = "+i+" => "+users.get(i));
     }
   }
-
+  
+  @Override
   public void transferirDiagramaSecuencia(transferirEvento objevento)
   {
     /*objgraficador.getObjcontrol().objactor = objevento.getObjactor();
@@ -344,56 +316,40 @@ public class formCliente extends JFrame implements interfaceEvento
     objgraficador.getObjcontrol().objconector = objevento.getObjconector();*/
     objgraficador.getObjcontrol().setObjds(objevento.getObjds());
     objgraficador.actualizarGrafica();
-    addDiagramaSecuenciaArbol(objevento.getUpdatearbol());
   }
-  
-  public void transferirActor(transferirEvento objevento)
+    
+  @Override
+  public void transferirTabla(transferirEvento objevento)
   {
     objgraficador.getObjcontrol().setObjds(objevento.getObjds());
-    objgraficador.getObjcontrol().objactor    = objevento.getObjactor();
-    objgraficador.getObjcontrol().objclase    = null;
+    objgraficador.getObjcontrol().objTabla = objevento.getObjclase();
     objgraficador.getObjcontrol().objconector = null;
     objgraficador.actualizarGrafica();
   }
   
-  public void transferirClase(transferirEvento objevento)
+  @Override
+  public void transferirRelacion(transferirEvento objevento)
   {
     objgraficador.getObjcontrol().setObjds(objevento.getObjds());
-    objgraficador.getObjcontrol().objactor    = null;
-    objgraficador.getObjcontrol().objclase    = objevento.getObjclase();
-    objgraficador.getObjcontrol().objconector = null;
-    objgraficador.actualizarGrafica();
-    addDiagramaSecuenciaArbol(objevento.getUpdatearbol());
-  }
-  
-  public void transferirConector(transferirEvento objevento)
-  {
-    objgraficador.getObjcontrol().setObjds(objevento.getObjds());
-    objgraficador.getObjcontrol().objactor    = null;
-    objgraficador.getObjcontrol().objclase    = null;
+    objgraficador.getObjcontrol().objTabla    = null;
     objgraficador.getObjcontrol().objconector = objevento.getObjconector();
     objgraficador.actualizarGrafica();
   }
-  
-  public void transferirActualizarActor(transferirEvento objevento)
+  @Override
+  public void transferirActualizarTabla(transferirEvento objevento)
   {
-    objgraficador.getObjcontrol().actualizarActor(objevento.getObjactor());
+    objgraficador.getObjcontrol().actualizarTabla(objevento.getObjclase());
     objgraficador.actualizarGrafica();
   }
   
-  public void transferirActualizarClase(transferirEvento objevento)
+  @Override
+  public void transferirActualizarRelacion(transferirEvento objevento)
   {
-    objgraficador.getObjcontrol().actualizarClase(objevento.getObjclase());
-    objgraficador.actualizarGrafica();
-    addDiagramaSecuenciaArbol(objevento.getUpdatearbol());
-  }
-  
-  public void transferirActualizarConector(transferirEvento objevento)
-  {
-    objgraficador.getObjcontrol().actualizarConector(objevento.getObjconector());
+    objgraficador.getObjcontrol().actualizarRelacion(objevento.getObjconector());
     objgraficador.actualizarGrafica();
   }
   
+  @Override
   public void transferirMensajeError(transferirEvento objevento)
   {
     JOptionPane.showMessageDialog(this, objevento.getMensajeerror());
@@ -419,9 +375,9 @@ public class formCliente extends JFrame implements interfaceEvento
     int result = selectfile.showSaveDialog(this);
     if(result == JFileChooser.APPROVE_OPTION)
     {
-      guardarXML objguardar = new guardarXML(objgraficador.getObjcontrol().getObjds());
+      //guardarXML objguardar = new guardarXML(objgraficador.getObjcontrol().getObjds());
       File a = new File(selectfile.getSelectedFile().getPath()+".xml");
-      objguardar.guardarxml(a);
+      //objguardar.guardarxml(a);
     }
   }
   
@@ -442,14 +398,12 @@ public class formCliente extends JFrame implements interfaceEvento
          JOptionPane.showMessageDialog( this, "Nombre de archivo inválido", "Nombre de archivo inválido", JOptionPane.ERROR_MESSAGE );
       else
       { // abrir archivo
-        leerXML objleer = new leerXML();
-        objleer.load(file.getPath());
+        //leerXML objleer = new leerXML();
+        //objleer.load(file.getPath());
         try
         {
-          objservidor.abrirDiagramaSecuencia(usuario, objleer.getObjds());
+          //objservidor.abrirDiagrama(usuario, objleer.getObjds());
         } // procesar excepciones que pueden ocurrir al abrir el archivo
-        catch (RemoteException ex) 
-        { ex.printStackTrace(); } 
         catch ( Exception excepcionES ) 
         { JOptionPane.showMessageDialog( this, "Error al abrir el archivo", "Error", JOptionPane.ERROR_MESSAGE ); }
       } // fin de instrucción else
@@ -479,18 +433,15 @@ public class formCliente extends JFrame implements interfaceEvento
     {
       try 
       {
-        LinkedList<clsClase> clase = objservidor.getObjds().getClase();
+        LinkedList<clsTabla> clase = objservidor.getObjds().getTablas();
         int dim = clase.size();
         generarCodigo objgeneracodigo = new generarCodigo();
         for (int i = 0; i < dim; i++)
         {
-          clsClase objclase = clase.get(i);
-          if (objclase.getTipo() == 2)
-          {
+            clsTabla objclase = clase.get(i);
             objgeneracodigo.GeneraCodigo(objclase);
-            File a = new File(selectfile.getCurrentDirectory()+"\\"+objclase.getNombre()+".java");
+            File a = new File(selectfile.getCurrentDirectory()+"\\"+objclase.getNombreTabla()+".java");
             objgeneracodigo.guardarFile(a);
-          }
         }
       }
       catch (Exception ex) 
@@ -507,8 +458,7 @@ public class formCliente extends JFrame implements interfaceEvento
   {
     try 
     {
-      //objservidor.nuevoDiagramaSecuencia(objgraficador.getObjcontrol().getUsuario());
-      objservidor.nuevoDiagramaSecuencia(usuario);
+      objservidor.nuevoDiagrama(usuario);
     }
     catch (Exception ex) 
     { ex.printStackTrace(); }
@@ -555,69 +505,26 @@ public class formCliente extends JFrame implements interfaceEvento
          JOptionPane.showMessageDialog( this, "Nombre de archivo inválido", "Nombre de archivo inválido", JOptionPane.ERROR_MESSAGE );
       else
       { // abrir archivo
-        leerXMI objleer = new leerXMI();
-        objleer.load(file.getPath());
+        //leerXMI objleer = new leerXMI();
+        //objleer.load(file.getPath());
         try
         {
-          objservidor.importarDiagramaSecuencia(usuario, objleer.getObjds());
-        } // procesar excepciones que pueden ocurrir al abrir el archivo
-        catch (RemoteException ex) 
-        { ex.printStackTrace(); } 
+          //objservidor.importarDiagrama(usuario, objleer.getObjds());
+        } // procesar excepciones que pueden ocurrir al abrir el archiv 
         catch ( Exception excepcionES ) 
         { JOptionPane.showMessageDialog( this, "Error al abrir el archivo", "Error", JOptionPane.ERROR_MESSAGE ); }
       } // fin de instrucción else
     } 
   }
 
-  public void addDiagramaSecuenciaArbol(boolean updatearbol)
-  {
-    if (updatearbol)
-    {
-    arbol.clear();
-    LinkedList<clsClase> clase = objgraficador.getObjcontrol().getObjds().getClase();
-    int dim = clase.size();
-    //System.out.println("TOTAL EN EL ARBOL => "+clase.size());
-    for (int i = 0; i < dim; i++)
-    {
-      clsClase objclase = clase.get(i);
-      if (objclase.getTipo() == 1)
-      {
-        //System.out.println("SOY ARBOL CON id = "+objclase.getId());
-        DefaultMutableTreeNode p1 = arbol.addObject(null, objclase);
-        LinkedList<clsAtributo> atributo = objclase.getAtributos();
-        int dima = atributo.size();
-        for (int j = 0; j < dima; j++)
-          arbol.addObject(p1, atributo.get(j), true);
-        
-        LinkedList<clsMetodo> metodo = objclase.getMetodos();
-        dima = metodo.size();
-        for (int j = 0; j < dima; j++)
-          arbol.addObject(p1, metodo.get(j), true);
-      }
-    }
-    arbol.setVisible(true);
-    //arbol.treeModel.reload();
-    }
-  }
-  
-  
-  public void transferirAtributo(transferirEvento objevento)
+  public void transferirColumna(transferirEvento objevento)
   {
     objgraficador.getObjcontrol().setObjds(objevento.getObjds());
     //objgraficador.getObjcontrol().objclase = objevento.getObjclase();
     objgraficador.getObjcontrol().actualizarFormClaseAtributo(objevento.getObjclase());
-    addDiagramaSecuenciaArbol(objevento.getUpdatearbol());
   }
   
-  public void transferirMetodo(transferirEvento objevento)
-  {
-    objgraficador.getObjcontrol().setObjds(objevento.getObjds());
-    //objgraficador.getObjcontrol().objclase = objevento.getObjclase();
-    objgraficador.getObjcontrol().actualizarFormClaseMetodo(objevento.getObjclase());
-    addDiagramaSecuenciaArbol(objevento.getUpdatearbol());
-  }
-  
-  //********************** EVENTO DEL MOUSE Y TECLADO **************************
+//********************** EVENTO DEL MOUSE Y TECLADO **************************
   class eventoKey extends KeyAdapter
   {
     public void keyPressed(KeyEvent e)
@@ -672,4 +579,7 @@ public class formCliente extends JFrame implements interfaceEvento
     objcliente.setVisible(true);
     //objcliente.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
   }
+  
+  
+  
 }

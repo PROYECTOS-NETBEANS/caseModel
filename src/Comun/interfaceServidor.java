@@ -15,57 +15,42 @@ public interface interfaceServidor extends Remote
   
   public void enviarMensajeChat(String nombre_usuario, String mensajechat) throws RemoteException;
   
-  public void enviarDiagramaSecuencia(String nombre_usuario, boolean updatearbol) throws RemoteException;
+  public void enviarDiagrama(String nombre_usuario) throws RemoteException;
   
-  //public void nuevoDiagramaSecuencia(String nombre_usuario) throws RemoteException;
-  public void nuevoDiagramaSecuencia(String nombre_usuario) throws RemoteException;
+  public void nuevoDiagrama(String nombre_usuario) throws RemoteException;
   
-  public void abrirDiagramaSecuencia(String nombre_usuario, clsDiagramaSecuencia aux) throws RemoteException;
+  public void abrirDiagrama(String nombre_usuario, clsDiagrama aux) throws RemoteException;
   
-  public void importarDiagramaSecuencia(String nombre_usuario, clsDiagramaSecuencia aux) throws RemoteException;
+  public void importarDiagrama(String nombre_usuario, clsDiagrama aux) throws RemoteException;
   
-  public void actualizarDiagramaSecuencia(String nombre_usuario) throws RemoteException;
+  public void actualizarDiagrama(String nombre_usuario) throws RemoteException;
   
   //public void actualizarDiagramaSecuencia(diagramaSecuencia aux) throws RemoteException;
   
-  public clsDiagramaSecuencia getObjds() throws RemoteException;
+  public clsDiagrama getObjds() throws RemoteException;
   
   //public void setObjds(diagramaSecuencia objds) throws RemoteException;
   
   public Object getFigura() throws RemoteException;
-  
-  public void addActor(clsActor objactor, String nombre_usuario) throws RemoteException;
-  
-  public void addClase(clsClase objclase, String nombre_usuario) throws RemoteException;
     
-  public void addConector(clsEnlace objconector, String nombre_usuario) throws RemoteException;
+  public void addTabla(clsTabla objclase, String nombre_usuario) throws RemoteException;
+    
+  public void addRelacion(clsRelacion objconector, String nombre_usuario) throws RemoteException;
   
-  public void actualizarActor(String nombre_usuario, clsActor objactor) throws RemoteException;
+  public void actualizarTabla(String nombre_usuario, clsTabla objclase) throws RemoteException;
   
-  public void actualizarClase(String nombre_usuario, clsClase objclase, boolean updatearbol) throws RemoteException;
+  public void actualizarRelacion(String nombre_usuario, clsRelacion objconector) throws RemoteException;
   
-  public void actualizarConector(String nombre_usuario, clsEnlace objconector) throws RemoteException;
+  public clsTabla verificarTabla(Point p) throws RemoteException;
   
-  public clsActor verificarActor(Point p) throws RemoteException;
+  public clsRelacion verificarRelacion(Point p) throws RemoteException;
   
-  public clsClase verificarClase(Point p) throws RemoteException;
+  public void addColumna(int id, clsColumna objatributo) throws RemoteException;
   
-  public clsEnlace verificarConector(Point p) throws RemoteException;
+  public void delColumna(int id, String nombre_atributo) throws RemoteException;  
   
+
+  public void eliminarTabla(int id) throws RemoteException;
   
-  
-  public void addAtributo(int id, clsAtributo objatributo, boolean updatearbol) throws RemoteException;
-  
-  public void delAtributo(int id, String nombre_atributo, boolean updatearbol) throws RemoteException;
-  
-  public void addMetodo(int id, clsMetodo objmetodo, boolean updatearbol) throws RemoteException;
-  
-  public void delMetodo(int id, clsMetodo objmetodo, boolean updatearbol) throws RemoteException;
-  
-  
-  public void eliminarActor(int id) throws RemoteException;
-  
-  public void eliminarClase(int id, boolean updatearbol) throws RemoteException;
-  
-  public void eliminarEnlace(int id) throws RemoteException;
+  public void eliminarRelacion(int id) throws RemoteException;
 }

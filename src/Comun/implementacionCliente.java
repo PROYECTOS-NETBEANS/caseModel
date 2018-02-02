@@ -18,6 +18,7 @@ public class implementacionCliente extends UnicastRemoteObject implements interf
   public implementacionCliente() throws RemoteException
   { super();  }
   
+  @Override
   public void enviarMensajeChat(String mensajechat) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
@@ -30,12 +31,12 @@ public class implementacionCliente extends UnicastRemoteObject implements interf
     }
   }
   
-  public void enviarDiagramaSecuencia(String nombre_usuario, clsDiagramaSecuencia objds, boolean updatearbol) throws RemoteException
+  @Override
+  public void enviarDiagrama(String nombre_usuario, clsDiagrama objds) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
     transferirEvento objevento = new transferirEvento(this);
     objevento.setObjds(objds);
-    objevento.setUpdatearbol(updatearbol);
     for (int i = 0; i <= array.length - 1; i++)
     {
       if (array[i] instanceof interfaceEvento)
@@ -43,6 +44,7 @@ public class implementacionCliente extends UnicastRemoteObject implements interf
     }
   }
 
+  @Override
   public void actualizarListaUsuario(Vector usuarios) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
@@ -55,7 +57,8 @@ public class implementacionCliente extends UnicastRemoteObject implements interf
     }
   }
   
-  public void actualizarDiagramaSecuencia(clsDiagramaSecuencia objds) throws RemoteException
+  @Override
+  public void actualizarDiagrama(clsDiagrama objds) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
     transferirEvento objevento = new transferirEvento(this);
@@ -67,37 +70,22 @@ public class implementacionCliente extends UnicastRemoteObject implements interf
     }
   }
   
-  
-  
-  
-  public void enviarActor(clsDiagramaSecuencia objds, clsActor objactor) throws RemoteException
-  {
-    EventListener array[] = listaevento.getListeners(interfaceEvento.class);
-    transferirEvento objevento = new transferirEvento(this);
-    objevento.setObjds(objds);
-    objevento.setObjactor(objactor);
-    for (int i = 0; i <= array.length - 1; i++)
-    {
-      if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirActor(objevento);
-    }
-  }
-  
-  public void enviarClase(clsDiagramaSecuencia objds, clsClase objclase, boolean updatearbol) throws RemoteException
+  @Override
+  public void enviarTabla(clsDiagrama objds, clsTabla objclase) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
     transferirEvento objevento = new transferirEvento(this);
     objevento.setObjds(objds);
     objevento.setObjclase(objclase);
-    objevento.setUpdatearbol(updatearbol);
     for (int i = 0; i <= array.length - 1; i++)
     {
       if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirClase(objevento);
+        ((interfaceEvento) array[i]).transferirTabla(objevento);
     }
   }
   
-  public void enviarConector(clsDiagramaSecuencia objds, clsEnlace objconector) throws RemoteException
+  @Override
+  public void enviarRelacion(clsDiagrama objds, clsRelacion objconector) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
     transferirEvento objevento = new transferirEvento(this);
@@ -106,36 +94,26 @@ public class implementacionCliente extends UnicastRemoteObject implements interf
       for (int i = 0; i <= array.length - 1; i++)
     {
       if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirConector(objevento);
+        ((interfaceEvento) array[i]).transferirRelacion(objevento);
     }
   }
   
-  public void actualizarActor(clsActor objactor) throws RemoteException
-  {
-    EventListener array[] = listaevento.getListeners(interfaceEvento.class);
-    transferirEvento objevento = new transferirEvento(this);
-    objevento.setObjactor(objactor);
-    for (int i = 0; i <= array.length - 1; i++)
-    {
-      if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirActualizarActor(objevento);
-    }
-  }
   
-  public void actualizarClase(clsClase objclase, boolean updatearbol) throws RemoteException
+  @Override
+  public void actualizarTabla(clsTabla objclase) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
     transferirEvento objevento = new transferirEvento(this);
     objevento.setObjclase(objclase);
-    objevento.setUpdatearbol(updatearbol);
     for (int i = 0; i <= array.length - 1; i++)
     {
       if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirActualizarClase(objevento);
+        ((interfaceEvento) array[i]).transferirActualizarTabla(objevento);
     }
   }
   
-  public void actualizarConector(clsEnlace objconector) throws RemoteException
+  @Override
+  public void actualizarRelacion(clsRelacion objconector) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
     transferirEvento objevento = new transferirEvento(this);
@@ -143,10 +121,11 @@ public class implementacionCliente extends UnicastRemoteObject implements interf
     for (int i = 0; i <= array.length - 1; i++)
     {
       if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirActualizarConector(objevento);
+        ((interfaceEvento) array[i]).transferirActualizarRelacion(objevento);
     }
   }
   
+  @Override
   public void enviarMensajeError(String mensaje) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
@@ -161,87 +140,20 @@ public class implementacionCliente extends UnicastRemoteObject implements interf
   
   
   
-  public void enviarAtributo(clsDiagramaSecuencia objds, clsClase objclase, boolean updatearbol) throws RemoteException
+  @Override
+  public void enviarColumna(clsDiagrama objds, clsTabla objclase) throws RemoteException
   {
     EventListener array[] = listaevento.getListeners(interfaceEvento.class);
     transferirEvento objevento = new transferirEvento(this);
     objevento.setObjds(objds);
     objevento.setObjclase(objclase);
-    objevento.setUpdatearbol(updatearbol);
     for (int i = 0; i <= array.length - 1; i++)
     {
       if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirAtributo(objevento);
+        ((interfaceEvento) array[i]).transferirColumna(objevento);
     }
   }
-  
-  public void enviarMetodo(clsDiagramaSecuencia objds, clsClase objclase, boolean updatearbol) throws RemoteException
-  {
-    EventListener array[] = listaevento.getListeners(interfaceEvento.class);
-    transferirEvento objevento = new transferirEvento(this);
-    objevento.setObjds(objds);
-    objevento.setObjclase(objclase);
-    objevento.setUpdatearbol(updatearbol);
-    for (int i = 0; i <= array.length - 1; i++)
-    {
-      if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirMetodo(objevento);
-    }
-  }
-  
-  /*public void actualizarPropiedadActor(actor objactor) throws RemoteException
-  {
-    EventListener array[] = listaevento.getListeners(interfaceEvento.class);
-    transferirEvento objevento = new transferirEvento(this);
-    objevento.setObjactor(objactor);
-    for (int i = 0; i <= array.length - 1; i++)
-    {
-      if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirPropiedadActor(objevento);
-    }
-  }
-  
-  public void actualizarPropiedadClase(clase objclase) throws RemoteException
-  {
-    EventListener array[] = listaevento.getListeners(interfaceEvento.class);
-    transferirEvento objevento = new transferirEvento(this);
-    objevento.setObjclase(objclase);
-    for (int i = 0; i <= array.length - 1; i++)
-    {
-      if (array[i] instanceof interfaceEvento)
-        ((interfaceEvento) array[i]).transferirPropiedadClase(objevento);
-    }
-  }
-  
-  public void actualizarPropiedadConector(conector objconector) throws RemoteException
-  {
-  }*/
-  
-  /*public void enviarNumero(Object n) throws RemoteException
-  {
-    EventListener array[] = listaevento.getListeners(interfaceEvento.class);
-    transferirEvento objevento = new transferirEvento(this);
-    objevento.setN(n);
-    for (int i = 0; i <= array.length - 1; i++)
-    {
-      if (array[i] instanceof interfaceEvento) 
-        ((interfaceEvento) array[i]).transferirN(objevento);
-    }
-  }*/
-  
-  /*public void actualizarImportar(diagramaSecuencia objds) throws RemoteException
-  {
-    EventListener array[] = listaevento.getListeners(interfaceEvento.class);
-    transferirEvento objevento = new transferirEvento(this);
-    objevento.setObjds(objds);
-    for (int i = 0; i <= array.length - 1; i++)
-    {
-      if (array[i] instanceof interfaceEvento)
-        //((interfaceEvento) array[i]).transferirActualizarConector(objevento);
-        ((interfaceEvento) array[i]).transferirActualizarImportar(objevento);
-    }
-  }*/
-  
+    
   public void adicionarEscuchador(interfaceEvento listener)
   { listaevento.add(interfaceEvento.class, listener); }
 }

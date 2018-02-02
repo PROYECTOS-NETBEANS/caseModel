@@ -9,17 +9,12 @@ public class transferirEvento extends EventObject
   private Vector listausuario = null;
   private String mensajechat  = "", mensajeerror;
   
-  private clsDiagramaSecuencia objds = null;
+  private clsDiagrama objds = null;
   private Object figura = null;
   
-  
-  private clsActor objactor;
-  private clsClase objclase;
-  private clsEnlace objconector;
-  
-  private boolean updatearbol;
-  //private actor antiguo, nuevo;
-  
+  private clsTabla objtabla;
+  private clsRelacion objconector;
+    
   public transferirEvento(Object source)
   { super(source);  }
   
@@ -35,12 +30,12 @@ public class transferirEvento extends EventObject
   public String getMensajeChat()
   { return mensajechat; }
 
-  public clsDiagramaSecuencia getObjds()
+  public clsDiagrama getObjds()
   {
     return objds;
   }
 
-  public void setObjds(clsDiagramaSecuencia objds)
+  public void setObjds(clsDiagrama objds)
   {
     this.objds = objds;
   }
@@ -55,65 +50,25 @@ public class transferirEvento extends EventObject
     this.figura = figura;
   }
 
-  public clsActor getObjactor()
+  public clsTabla getObjclase()
   {
-    return objactor;
+    return objtabla;
   }
 
-  public void setObjactor(clsActor objactor)
+  public void setObjclase(clsTabla objclase)
   {
-    this.objactor = objactor;
+    this.objtabla = objclase;
   }
 
-  public clsClase getObjclase()
-  {
-    return objclase;
-  }
-
-  public void setObjclase(clsClase objclase)
-  {
-    this.objclase = objclase;
-  }
-
-  public clsEnlace getObjconector()
+  public clsRelacion getObjconector()
   {
     return objconector;
   }
 
-  public void setObjconector(clsEnlace objconector)
+  public void setObjconector(clsRelacion objconector)
   {
     this.objconector = objconector;
   }
-
-  /*public actor getAntiguo()
-  {
-    return antiguo;
-  }
-
-  public void setAntiguo(actor antiguo)
-  {
-    this.antiguo = antiguo;
-  }
-
-  public actor getNuevo()
-  {
-    return nuevo;
-  }
-
-  public void setNuevo(actor nuevo)
-  {
-    this.nuevo = nuevo;
-  }*
-
-  public diagramaSecuencia getImportar()
-  {
-    return importar;
-  }
-
-  public void setImportar(diagramaSecuencia importar)
-  {
-    this.importar = importar;
-  }*/
 
   public String getMensajeerror()
   {
@@ -125,13 +80,4 @@ public class transferirEvento extends EventObject
     this.mensajeerror = mensajeerror;
   }
 
-  public boolean getUpdatearbol()
-  {
-    return updatearbol;
-  }
-
-  public void setUpdatearbol(boolean updatearbol)
-  {
-    this.updatearbol = updatearbol;
-  }
 }

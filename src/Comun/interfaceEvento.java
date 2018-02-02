@@ -9,24 +9,17 @@ public interface interfaceEvento extends EventListener
   public void actualizarListaUsuario(transferirEvento objevento);
   
   public void transferirDiagramaSecuencia(transferirEvento objevento);
+              
+  public void transferirTabla(transferirEvento objevento);
   
-  public void transferirActor(transferirEvento objevento);
+  public void transferirRelacion(transferirEvento objevento);
   
-  public void transferirClase(transferirEvento objevento);
+  public void transferirActualizarTabla(transferirEvento objevento);
   
-  public void transferirConector(transferirEvento objevento);
-   
-  public void transferirActualizarActor(transferirEvento objevento);
+  public void transferirActualizarRelacion(transferirEvento objevento);
   
-  public void transferirActualizarClase(transferirEvento objevento);
+  public void transferirMensajeError(transferirEvento objevento); 
   
-  public void transferirActualizarConector(transferirEvento objevento);
+  public void transferirColumna(transferirEvento objeventol);
   
-  public void transferirMensajeError(transferirEvento objevento);
-  
-  
-  
-  public void transferirAtributo(transferirEvento objeventol);
-  
-  public void transferirMetodo(transferirEvento objevento);
 }

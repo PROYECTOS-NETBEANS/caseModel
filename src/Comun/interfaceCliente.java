@@ -13,33 +13,22 @@ public interface interfaceCliente extends Remote
 {
   public void enviarMensajeChat(String mensajechat) throws RemoteException;
   
-  public void enviarDiagramaSecuencia(String nombre_usuario, clsDiagramaSecuencia objds, boolean updatearbol) throws RemoteException;
+  public void enviarDiagrama(String nombre_usuario, clsDiagrama objds) throws RemoteException;
   
   public void actualizarListaUsuario(Vector usuarios) throws RemoteException;
   
-  public void actualizarDiagramaSecuencia(clsDiagramaSecuencia objds) throws RemoteException;
+  public void actualizarDiagrama(clsDiagrama objds) throws RemoteException;
   
-  public void enviarActor(clsDiagramaSecuencia objds, clsActor objactor) throws RemoteException;
+  public void enviarTabla(clsDiagrama objds, clsTabla objclase) throws RemoteException;
   
-  public void enviarClase(clsDiagramaSecuencia objds, clsClase objclase, boolean updatearbol) throws RemoteException;
+  public void enviarRelacion(clsDiagrama objds, clsRelacion objconector) throws RemoteException;
+    
+  public void actualizarTabla(clsTabla objclase) throws RemoteException;
   
-  public void enviarConector(clsDiagramaSecuencia objds, clsEnlace objconector) throws RemoteException;
-  
-  public void actualizarActor(clsActor objactor) throws RemoteException;
-  
-  public void actualizarClase(clsClase objclase, boolean updatearbol) throws RemoteException;
-  
-  public void actualizarConector(clsEnlace objconector) throws RemoteException;
+  public void actualizarRelacion(clsRelacion objconector) throws RemoteException;
   
   public void enviarMensajeError(String mensaje) throws RemoteException;
-  
-  
-  
-  public void enviarAtributo(clsDiagramaSecuencia objds, clsClase objclase, boolean updatearbol) throws RemoteException;
-  
-  public void enviarMetodo(clsDiagramaSecuencia objds, clsClase objclase, boolean updatearbol) throws RemoteException;
-  
-  /*public void setMensajeTurno(String mensajechat) throws RemoteException;
-  
-  public String getMensajeTurno() throws RemoteException;*/
+    
+  public void enviarColumna(clsDiagrama objds, clsTabla objclase) throws RemoteException;
+    
 }

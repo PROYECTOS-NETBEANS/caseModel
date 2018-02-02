@@ -1,8 +1,7 @@
 package Archivo;
 
-import Negocio.clsAtributo;
-import Negocio.clsClase;
-import Negocio.clsMetodo;
+import Negocio.clsColumna;
+import Negocio.clsTabla;
 import Negocio.clsParametro;
 
 import java.io.File;
@@ -13,37 +12,35 @@ import java.util.LinkedList;
 
 public class generarCodigo
 {
-  private clsClase objclase = null;
-  private LinkedList<clsAtributo> atributo = new LinkedList<clsAtributo>();
-  private LinkedList<clsMetodo> metodo = new LinkedList<clsMetodo>();
+  private clsTabla objclase = null;
+  private LinkedList<clsColumna> atributo = new LinkedList<clsColumna>();
   private String toString = "";
   private String sl = "\n";
   
   public generarCodigo()
   {}
   
-  public clsClase getClase()
+  public clsTabla getClase()
   {
     return objclase;
   }
 
-  public void setClase(clsClase objclase)
+  public void setClase(clsTabla objclase)
   {
     this.objclase = objclase;
   }
   
-  public void GeneraCodigo(clsClase objclase)
+  public void GeneraCodigo(clsTabla objclase)
   {
     toString = "";
     this.objclase = objclase;
-    atributo= objclase.getAtributos();
-    metodo  = objclase.getMetodos();
+    atributo= objclase.getColumnas();
     generarClase();
   }
   
   private void generarClase()
   {
-    toString = objclase.getAcceso()+" class "+objclase.getNombre()+sl;
+    toString = objclase.getAcceso()+" class "+objclase.getNombreTabla()+sl;
     toString += "{"+sl;
     toString += "  // ATRIBUTOS DE LA CLASE" + sl;
     generarAtributo();
@@ -61,13 +58,13 @@ public class generarCodigo
     int dim = atributo.size();
     for (int i = 0; i < dim; i++)
     {
-      clsAtributo objatributo = atributo.get(i);
+      clsColumna objatributo = atributo.get(i);
       toString += "  "+generarAtributo(objatributo)+sl;
     }
     toString += sl;
   }
   
-  public String generarAtributo(clsAtributo objatributo)
+  public String generarAtributo(clsColumna objatributo)
   {
     return objatributo.getAcceso()+" "+objatributo.getTipo()+" "+objatributo.getNombre()+";";
   }
@@ -75,13 +72,13 @@ public class generarCodigo
   private void generarConstructor()
   {
     //  CONTRUCTO POR DEFAULT
-    toString += "  "+objclase.getAcceso()+" "+objclase.getNombre()+"()"+sl;
+    toString += "  "+objclase.getAcceso()+" "+objclase.getNombreTabla()+"()"+sl;
     toString += "  {"+sl;
     int dim = atributo.size();
     String par = "";
     for (int i = 0; i < dim; i++)
     {
-      clsAtributo objatributo = atributo.get(i);
+      clsColumna objatributo = atributo.get(i);
       par += asignacionVariables(objatributo, "", false);
     }
     toString += par;
@@ -90,11 +87,11 @@ public class generarCodigo
     if (dim > 0)
     {
       //  OTRO CONSTRUCTOR
-      toString += "  "+objclase.getAcceso()+" "+objclase.getNombre()+"(";
+      toString += "  "+objclase.getAcceso()+" "+objclase.getNombreTabla()+"(";
       par = "";
       for (int i = 0; i < dim; i++)
       {
-        clsAtributo objatributo = atributo.get(i);
+        clsColumna objatributo = atributo.get(i);
         clsParametro objparametro = new clsParametro(objatributo.getNombre(), objatributo.getTipo());
         par += generarParametro(objparametro)+", ";
       }
@@ -106,14 +103,14 @@ public class generarCodigo
       
       for (int i = 0; i < dim; i++)
       {
-        clsAtributo objatributo = atributo.get(i);
+        clsColumna objatributo = atributo.get(i);
         toString += asignacionVariables(objatributo, "this.", true);
       }
       toString += "  }"+sl+sl;
     }
   }
   
-  private String asignacionVariables(clsAtributo objatributo, String ref, boolean sw)
+  private String asignacionVariables(clsColumna objatributo, String ref, boolean sw)
   {
     String asignacion = "";
     if (objatributo.getTipo().equals("int"))
@@ -139,11 +136,12 @@ public class generarCodigo
   
   private void generarSelector()
   {
+     /*
     int dim = atributo.size();
     String met = "";
     for (int i = 0; i < dim; i++)
     {
-      clsAtributo objatributo = atributo.get(i);
+      clsColumna objatributo = atributo.get(i);
       clsMetodo objmetodo = new clsMetodo("set"+objatributo.getNombre(), "void", "public");
       objmetodo.addParametro(new clsParametro(objatributo.getNombre(), objatributo.getTipo()));
       met += generarMetodoSelector(objmetodo) + sl;
@@ -152,17 +150,20 @@ public class generarCodigo
       met += generarMetodoSelector(objmetodo) + sl;
     }
     toString += met;
+      */
+     
   }
-  
+  /*
   private String generarMetodoSelector(clsMetodo objmetodo)
   {
+      
     String met = "  "+objmetodo.getAcceso()+" "+objmetodo.getRetorna()+" "+objmetodo.getNombre();
     if (objmetodo.getRetorna().equals("void"))
     {
       met += "("+generarParametro(objmetodo.getParametros())+")" + sl;
       met += "  {" + sl;
       clsParametro objparametro = objmetodo.getParametros().get(0);
-      clsAtributo objatributo = new clsAtributo(objparametro.getNombre(), objparametro.getTipo(), "");
+      clsColumna objatributo = new clsColumna(objparametro.getNombre(), objparametro.getTipo(), "");
       met += asignacionVariables(objatributo, "this.", true);
     }
     else
@@ -174,15 +175,18 @@ public class generarCodigo
     }
     met += "  }" + sl;
     return met;
+      
   }
-  
+  */
   private void generarMetodo()
   {
+      /*
     int dim = metodo.size();
     for (int i = 0; i < dim; i++)
       toString += generarMetodo(metodo.get(i)) + sl;
+      */
   }
-  
+  /*
   public String generarMetodo(clsMetodo objmetodo)
   {
     String met = "  "+objmetodo.getAcceso()+" "+objmetodo.getRetorna()+" "+objmetodo.getNombre();
@@ -191,7 +195,7 @@ public class generarCodigo
     met += "  }" + sl;
     return met;
   }
-  
+  */
   private String generarParametro(LinkedList<clsParametro> parametro)
   {
     String par = "";

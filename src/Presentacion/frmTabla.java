@@ -25,7 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
-public class frmClase extends JDialog
+public class frmTabla extends JDialog
 {
   private JTabbedPane tbpropiedad = new JTabbedPane();
   private JPanel pgeneral = new JPanel(null);
@@ -80,11 +80,10 @@ public class frmClase extends JDialog
   
   private control objcontrol;
   
-  private clsClase objclase;
+  private clsTabla objclase;
  // private conector objconector;
   
-  private LinkedList<clsAtributo> atributo;
-  private LinkedList<clsMetodo> metodo;
+  private LinkedList<clsColumna> atributo;
   private LinkedList<clsParametro> parametro;  
   
   //**************** DIALOGO PARA LOS EL FORMULARIO PARAMETROS *****************
@@ -100,20 +99,19 @@ public class frmClase extends JDialog
   private JButton jButton4;
   private JDialog dparametro;  
 
-  public frmClase(Frame parent, String title, boolean modal)
+  public frmTabla(Frame parent, String title, boolean modal)
   {
     super(parent, title, modal);
   }
   
-  public void cargarPropiedad(control objcontrol, clsClase objclase)
+  public void cargarPropiedad(control objcontrol, clsTabla objclase)
   {
     try
     {
-      System.out.println("************* CARGAR PROPIEDAD => tipo="+objclase.getTipo());
+      System.out.println("************* CARGAR PROPIEDAD => tipo=");
       this.objcontrol = objcontrol;
       this.objclase = objclase;
-      atributo = objclase.getAtributos();
-      metodo   = objclase.getMetodos();
+      atributo = objclase.getColumnas();
       jbInit();
     }
     catch (Exception e)
@@ -376,7 +374,7 @@ public class frmClase extends JDialog
         {
           public void mousePressed(MouseEvent e)
           {
-            mbparam_mousePressed(e);
+              System.out.println("no implementas");
           }
         });
     pmetodos.add(mbparam, null);
@@ -403,14 +401,13 @@ public class frmClase extends JDialog
     
     cargarGeneral();
     cargarAtributo();
-    cargarMetodo();
   }
   
   private void cargarGeneral()
   {
-    this.setTitle(objclase.getNombre()+" - Propiedades de una Clase");
-    gtfnombre.setText(objclase.getNombre());
-    gcbestereotipo.setSelectedItem(objclase.getClassinterface());
+    this.setTitle(objclase.getNombreTabla()+" - Propiedades de Tabla");
+    gtfnombre.setText(objclase.getNombreTabla());
+    //gcbestereotipo.setSelectedItem(objclase.getClassinterface());
     if (grbprivate.getText().equals(objclase.getAcceso()))
       cargarGeneralSelect(true, false, false);
     if (grbprotected.getText().equals(objclase.getAcceso()))
@@ -436,45 +433,10 @@ public class frmClase extends JDialog
     cargarAtributoSelect(true, false, false);
     for (int i = 0; i < dim; i++)
     {
-      clsAtributo objatributo = atributo.get(i);
+      clsColumna objatributo = atributo.get(i);
       items.add(objatributo.getAcceso()+" "+objatributo.getNombre()+": "+objatributo.getTipo());
     }
     alatributos.setListData(items);
-  }
-  
-  private void cargarMetodo()
-  {
-    mtfnombre.setText("");
-    mcbretorno.removeAllItems();
-    mcbretorno.addItem("void");
-    mcbretorno.addItem("int");
-    mcbretorno.addItem("boolean");
-    mcbretorno.addItem("float");
-    mcbretorno.addItem("double");
-    mcbretorno.addItem("String");
-    mcbretorno.addItem("char");
-    mcbretorno.setSelectedIndex(0);
-    
-    int dim = metodo.size();
-    Vector<String> items = new Vector<String>();
-    cargarMetodoSelect(true, false, false);
-    for (int i = 0; i < dim; i++)
-    {
-      clsMetodo objmetodo = metodo.get(i);
-      parametro = objmetodo.getParametros();
-      String pars = "";
-      int k = parametro.size();
-      for (int j = 0; j < k; j++)
-      {
-        clsParametro objparametro = parametro.get(j);
-        pars = pars + objparametro.getTipo()+" "+objparametro.getNombre()+",";
-      }
-      if (!pars.equals(""))
-        pars = pars.substring(0, pars.length()-1);
-      items.add(objmetodo.getAcceso()+" "+objmetodo.getNombre()+"("+pars+"): "+objmetodo.getRetorna());
-    }
-    mlmetodos.setListData(items);
-    parametro = new LinkedList<clsParametro>();
   }
   
   private void cargarGeneralSelect(boolean op1, boolean op2, boolean op3)
@@ -559,8 +521,8 @@ public class frmClase extends JDialog
       acceso = arbpublic.getText();
 
 
-    clsAtributo objatributo = new clsAtributo(atfnombre.getText(), acbtipo.getSelectedItem().toString(), acceso);
-    objcontrol.addAtributo(objclase.getId(), objatributo, true);
+    clsColumna objatributo = new clsColumna(atfnombre.getText(), acbtipo.getSelectedItem().toString(), acceso);
+    objcontrol.addColumna(objclase.getId(), objatributo);
     /*atributo.add(objatributo);
     cargarAtributo();*/
   }
@@ -573,11 +535,11 @@ public class frmClase extends JDialog
       int dim = atributo.size();
       for (int i = 0; i < dim; i++)
       {
-        clsAtributo objatributo = atributo.get(i);
+        clsColumna objatributo = atributo.get(i);
         String cad = objatributo.getAcceso()+" "+objatributo.getNombre()+": "+objatributo.getTipo();
         if (cad.equals(aux))
         {
-          objcontrol.delAtributo(objclase.getId(), objatributo.getNombre(), true);
+          objcontrol.delColumna(objclase.getId(), objatributo.getNombre());
           break;
         }
       }
@@ -585,15 +547,17 @@ public class frmClase extends JDialog
     }
   }
   
-  public void actualizarAtributo(clsClase objclase)
+  public void actualizarAtributo(clsTabla objclase)
   {
     this.objclase = objclase;
-    atributo = this.objclase.getAtributos();
+    atributo = this.objclase.getColumnas();
     cargarAtributo();
   }
 
   private void mbadicionar_mousePressed(MouseEvent e)
   {
+      System.out.println("frmTabla.mbadicionar_mousePressed no implemnetato! x limbert");
+      /*
     String acceso = "";
     if (mrbprivate.isSelected())
       acceso = mrbprivate.getText();
@@ -601,16 +565,18 @@ public class frmClase extends JDialog
       acceso = mrbprotected.getText();
     if (mrbpublic.isSelected())
       acceso = mrbpublic.getText();
+    
     clsMetodo objmetodo = new clsMetodo(mtfnombre.getText(), mcbretorno.getSelectedItem().toString(), acceso);
     objmetodo.setParametros(parametro);
-    /*metodo.add(objmetodo);
-    cargarMetodo();*/
     //System.out.println("+++++++++++++++++++++++ PASO INICIAL => tipo="+objclase.getTipo());
     objcontrol.addMetodo(objclase.getId(), objmetodo, true);
+    */
   }
 
   private void mbeliminar_mousePressed(MouseEvent e)
   {
+      System.out.println("frmTabla.mbeliminar_mousePressed no implemnet limbert");
+    /*
     if (mlmetodos.getSelectedIndex() >= 0)
     {
       String aux = mlmetodos.getSelectedValue().toString();
@@ -639,118 +605,9 @@ public class frmClase extends JDialog
       }
       //cargarMetodo();
     }
+    */
   }
-  
-  public void actualizarMetodo(clsClase objclase)
-  {
-    this.objclase = objclase;
-    metodo = this.objclase.getMetodos();
-    cargarMetodo();
-  }
-  
-
-  private void mbparam_mousePressed(MouseEvent e)
-  {
-    cargarDialogoParametros();
-    cargarParametros();
-    dparametro.setVisible(true);
-  }
-  
-  private void cargarDialogoParametros()
-  {
-    jLabel1 = new JLabel();
-    jLabel2 = new JLabel();
-    jTextField1 = new JTextField();
-    jComboBox1 = new JComboBox();
-    jScrollPane1 = new JScrollPane();
-    jList1 = new JList();
-    jButton1 = new JButton();
-    jButton2 = new JButton();
-    jButton3 = new JButton();
-    jButton4 = new JButton();
-    dparametro = new JDialog(this, mtfnombre.getText(), true);
-    
-    parametro = new LinkedList<clsParametro>();
-    
-    dparametro.setSize(new Dimension(279, 172));
-    dparametro.getContentPane().setLayout( null );
-    jLabel1.setText("Nombre:");
-    jLabel1.setBounds(new Rectangle(15, 15, 55, 15));
-    jLabel2.setText("Tipo:");
-    jLabel2.setBounds(new Rectangle(15, 50, 45, 15));
-    jTextField1.setBounds(new Rectangle(75, 15, 105, 20));
-    jComboBox1.setBounds(new Rectangle(75, 50, 105, 20));
-    jScrollPane1.setBounds(new Rectangle(10, 80, 170, 55));
-    jButton1.setText("Aceptar");
-    jButton1.setBounds(new Rectangle(190, 15, 75, 25));
-    jButton1.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            jButton1_mousePressed(e);
-          }
-        });
-    jButton2.setText("Cancelar");
-    jButton2.setBounds(new Rectangle(190, 45, 75, 25));
-    jButton2.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            jButton2_mousePressed(e);
-          }
-        });
-    jButton3.setText("Adicionar");
-    jButton3.setBounds(new Rectangle(190, 80, 75, 25));
-    jButton3.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            jButton3_mousePressed(e);
-          }
-        });
-    jButton4.setText("Eliminar");
-    jButton4.setBounds(new Rectangle(190, 110, 75, 25));
-    jButton4.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            jButton4_mousePressed(e);
-          }
-        });
-    jScrollPane1.getViewport().add(jList1, null);
-    dparametro.getContentPane().add(jButton4, null);
-    dparametro.getContentPane().add(jButton3, null);
-    dparametro.getContentPane().add(jButton2, null);
-    dparametro.getContentPane().add(jButton1, null);
-    dparametro.getContentPane().add(jScrollPane1, null);
-    dparametro.getContentPane().add(jComboBox1, null);
-    dparametro.getContentPane().add(jTextField1, null);
-    dparametro.getContentPane().add(jLabel2, null);
-    dparametro.getContentPane().add(jLabel1, null);
-  }
-  
-  private void cargarParametros()
-  {
-    jTextField1.setText("");
-    jComboBox1.removeAllItems();
-    jComboBox1.addItem("int");
-    jComboBox1.addItem("boolean");
-    jComboBox1.addItem("float");
-    jComboBox1.addItem("double");
-    jComboBox1.addItem("String");
-    jComboBox1.addItem("char");
-    jComboBox1.setSelectedIndex(0);
-    
-    Vector<String> items = new Vector<String>();
-    int dim = parametro.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsParametro objparametro = parametro.get(i);
-      items.add(objparametro.getNombre()+": "+objparametro.getTipo());
-    }
-    jList1.setListData(items);
-  }
-  
+ 
   private void jButton1_mousePressed(MouseEvent e)
   {
     dparametro.setVisible(false);
@@ -760,13 +617,6 @@ public class frmClase extends JDialog
   {
     parametro = new LinkedList<clsParametro>();
     dparametro.setVisible(false);
-  }
-
-  private void jButton3_mousePressed(MouseEvent e)
-  {
-    clsParametro objparametro = new clsParametro(jTextField1.getText(), jComboBox1.getSelectedItem().toString());
-    parametro.add(objparametro);
-    cargarParametros();
   }
 
   private void jButton4_mousePressed(MouseEvent e)
@@ -785,14 +635,12 @@ public class frmClase extends JDialog
           break;
         }
       }
-      cargarParametros();
     }
   }
   
   private void baceptar_mousePressed(MouseEvent e)
   {
-    objclase.setNombre(gtfnombre.getText());
-    objclase.setClassinterface(gcbestereotipo.getSelectedItem().toString());
+    objclase.setNombreTabla(gtfnombre.getText());
     if (grbprivate.isSelected())
       objclase.setAcceso(grbprivate.getText());
     if (grbprotected.isSelected())
@@ -800,7 +648,7 @@ public class frmClase extends JDialog
     if (grbpublic.isSelected())
       objclase.setAcceso(grbpublic.getText());
     //objclase.setAtributos(atributo);
-    objcontrol.enviarActualizarClase(objclase, true);
+    objcontrol.enviarActualizarTabla(objclase, true);
     this.setVisible(false);
   }
   

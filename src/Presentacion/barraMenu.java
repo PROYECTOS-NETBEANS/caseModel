@@ -20,9 +20,8 @@ public class barraMenu extends JPanel implements MouseListener, MouseMotionListe
   //JToolBar
   private formCliente form;
   private control objcontrol;
-  private clsActor objactor;
-  private clsClase objclase;
-  private clsEnlace objenlace;
+  private clsTabla objTabla;
+  private clsRelacion objenlace;
   
   JToolBar barra1   = new JToolBar(); //  imagenes\archivo
   JButton bnuevo    = new JButton(new ImageIcon("imagenes/archivo/nuevo.png"));
@@ -190,41 +189,28 @@ public class barraMenu extends JPanel implements MouseListener, MouseMotionListe
       //*************************************
       if (obj.getName().equals("Copiar"))
       {
-        objactor = objcontrol.objactor;
-        objclase = objcontrol.objclase;
+        objTabla = objcontrol.objTabla;
       }
       if (obj.getName().equals("Pegar"))
       {
-        if (objactor != null)
+        if (objTabla != null)
         {
-          Rectangle s = objactor.getSuperior();
+          Rectangle s = objTabla.getSuperior();
           s.setLocation(0, 0);
-          Rectangle i = objactor.getInferior();
-          clsActor aux = new clsActor(0, "", s, new Rectangle(s.x+(s.width/2)-5, s.y+s.height, 10, i.height));
-          objcontrol.enviarActor(aux);
-        }
-        if (objclase != null)
-        {
-          Rectangle s = objclase.getSuperior();
-          s.setLocation(0, 0);
-          Rectangle i = objclase.getInferior();
-          clsClase aux = new clsClase(0, 2, objclase.getClassinterface(), "", objclase.getAcceso(), s, new Rectangle(s.x+(s.width/2)-5, s.y+s.height, 10, i.height));
-          aux.setAtributos(objclase.getAtributos());
-          aux.setMetodos(objclase.getMetodos());
-          objcontrol.enviarClase(aux);
+          Rectangle i = objTabla.getInferior();
+          clsTabla aux = new clsTabla(0, "", objTabla.getAcceso(), s, new Rectangle(s.x+(s.width/2)-5, s.y+s.height, 10, i.height));
+          aux.setColumnas(objTabla.getColumnas());
+          objcontrol.enviarTabla(aux);
         }
       }
       if (obj.getName().equals("Eliminar"))
       {
-        objactor = objcontrol.objactor;
-        objclase = objcontrol.objclase;
+        objTabla = objcontrol.objTabla;
         objenlace= objcontrol.objconector;
-        if (objactor != null)
-          objcontrol.eliminarActor(objactor.getId());
-        if (objclase != null)
-          objcontrol.eliminarClase(objclase.getId());
+        if (objTabla != null)
+          objcontrol.eliminarTabla(objTabla.getId());
         if (objenlace != null)
-          objcontrol.eliminarEnlace(objclase.getId());
+          objcontrol.eliminarEnlace(objTabla.getId());
       }
       /*if (obj.getName().equals("Fuente"))
         form.guardarFile();

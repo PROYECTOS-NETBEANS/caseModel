@@ -17,14 +17,13 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public class barraDiagramaSecuencia extends JPanel implements MouseListener, MouseMotionListener
+public class barraToolsCase extends JPanel implements MouseListener, MouseMotionListener
 {
-  //private String diagrama[] = {"Puntero", "Conector", "Actor", "Interfaz", "Proceso", "Entidad", "6", "7"};
-  private String diagrama[] = {"Puntero", "Conector", "Actor", "Interfaz", "Proceso", "Entidad"};
-  private String imagen[] = {"Puntero.gif", "Enlace.gif", "Actor.gif", "Interfaz.gif", "Proceso.gif", "Entidad.gif"};
+  private String diagrama[] = {"Puntero", "Relacion", "Tabla"};
+  private String imagen[] = {"cursor.jpg", "conector.jpg", "tabla.jpg"};
   private control objcontrol;
   
-  public barraDiagramaSecuencia(control objcontrol)
+  public barraToolsCase(control objcontrol)
   {
     this.objcontrol = objcontrol;
     
@@ -41,27 +40,22 @@ public class barraDiagramaSecuencia extends JPanel implements MouseListener, Mou
   
   public void cargarComponente()
   {
-    JPanel p[] =  new JPanel[6];
+    JPanel p[] =  new JPanel[3];
     //String []f = new String()[];
     for (int i = 0; i < diagrama.length; i++)
     {
       //p[i] = new JPanel(new FlowLayout());
-      p[i] = new JPanel(new GridLayout(1, 2));
+      p[i] = new JPanel(new GridLayout(1, 1));
       JLabel lp = new JLabel(new ImageIcon("imagenes/diagrama/"+imagen[i]));
       //lp.setSize(120, 20);
       //lp.setBorder(BorderFactory.createEmptyBorder());
       //lp.setBorder(BorderFactory.createLineBorder(new Color(165, 165, 165)));
-      JLabel ln = new JLabel(diagrama[i]);
-      //ln.setSize(80, 20);
-      //ln.setBorder(BorderFactory.createEmptyBorder());
-      //ln.setBorder(BorderFactory.createLineBorder(new Color(165, 165, 165)));
       p[i].setName(diagrama[i]);
       p[i].add(lp);
-      p[i].add(ln);
       //p[i].setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
       p[i].addMouseListener(this);
       p[i].addMouseMotionListener(this);
-      p[i].setPreferredSize(new Dimension(120, 20));
+      p[i].setPreferredSize(new Dimension(120, 120));
       //p[i].setSize(80, 20);
       //p[i].setBorder(BorderFactory.createEmptyBorder());
       //p[i].setBorder(BorderFactory.createLineBorder(Color.red));
@@ -87,11 +81,13 @@ public class barraDiagramaSecuencia extends JPanel implements MouseListener, Mou
   
   /**
   * Invoked when a mouse button has been pressed on a component.
+     * @param e
   */
+  @Override
   public void mousePressed(MouseEvent e)
   {
      JPanel o = (JPanel) e.getSource();
-     System.out.println("PRESIONO: "+o.getName());
+     System.out.println("PRESIONO mouse pressed : "+o.getName());
      objcontrol.setModo(o.getName());
   }
   

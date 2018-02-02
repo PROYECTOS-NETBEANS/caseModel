@@ -27,7 +27,7 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
   private Vector nombre_actor = new Vector();
   
   
-  private clsDiagramaSecuencia objds = null;//, importar = null;
+  private clsDiagrama objds = null;//, importar = null;
   private Object figura = null;
   
   private JList listUsuario;
@@ -44,12 +44,13 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
       /*LocateRegistry.createRegistry(puerto);
       Naming.rebind(name, this);*/
       System.out.println("============== Servidor Iniciado ==============");
-      objds = new clsDiagramaSecuencia();
+      objds = new clsDiagrama();
     }
     catch (Exception ex) 
     { ex.printStackTrace(); }
   }
   
+  @Override
   public String conectar(String nombre_usuario, interfaceCliente objcliente) throws RemoteException
   {
     System.out.println("Nombre Usuario => "+nombre_usuario);
@@ -62,10 +63,11 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     actualizarUsuarios();
     enviarMensajeChat(nombre_usuario+" acaba de "+Mensaje.ON);
     //actualizarGraficaDiagramaSecuencia(objds, null);
-    enviarDiagramaSecuencia(nombre_usuario, true);
+    enviarDiagrama(nombre_usuario);
     return Mensaje.OK;
   }
     
+  @Override
   public String desconectar(String nombre_usuario) throws RemoteException
   {
     if (!usuarios.containsKey(nombre_usuario))
@@ -78,13 +80,15 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     return Mensaje.OFF;
   }
   
+  @Override
   public void enviarMensajeChat(String nombre_usuario, String mensajechat) throws RemoteException
   { enviarMensajeChat(nombre_usuario+": "+mensajechat);  }
   
-  public void enviarDiagramaSecuencia(String nombre_usuario, boolean updatearbol) throws RemoteException
+  @Override
+  public void enviarDiagrama(String nombre_usuario) throws RemoteException
   {
     interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
-    objcliente.enviarDiagramaSecuencia(nombre_usuario, objds, updatearbol);
+    objcliente.enviarDiagrama(nombre_usuario, objds);
   }
   
   /*public void nuevoDiagramaSecuencia(String nombre_usuario) throws RemoteException
@@ -102,10 +106,11 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     actualizarDiagramaSecuencia();
   }*/
   
-  public void nuevoDiagramaSecuencia(String nombre_usuario) throws RemoteException
+  @Override
+  public void nuevoDiagrama(String nombre_usuario) throws RemoteException
   {
-    /*clsDiagramaSecuencia aux = objds;
-    objds = new clsDiagramaSecuencia();
+    /*clsDiagrama aux = objds;
+    objds = new clsDiagrama();
     LinkedList<clsClase> clase = aux.getClase();
     int dim = clase.size();
     for (int i = 0; i < dim; i++)
@@ -114,30 +119,30 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
       if (objclase.getTipo() == 1)
         objds.addClase(objclase);
     }*/
-    objds = new clsDiagramaSecuencia();
-    actualizarDiagramaSecuencia(nombre_usuario);
+    objds = new clsDiagrama();
+    actualizarDiagrama(nombre_usuario);
   }
   
-  public void abrirDiagramaSecuencia(String nombre_usuario, clsDiagramaSecuencia aux) throws RemoteException
+  public void abrirDiagrama(String nombre_usuario, clsDiagrama aux) throws RemoteException
   {
-    nuevoDiagramaSecuencia(nombre_usuario);
-    objds.addActor(aux.getActor());
-    objds.addClase(aux.getClase());
-    objds.addConector(aux.getConector());
+    nuevoDiagrama(nombre_usuario);
+    objds.addTabla(aux.getTablas());
+    objds.addRelacion(aux.getRelacion());
     objds.addIds(aux.getIds());
-    actualizarDiagramaSecuencia(nombre_usuario);
+    actualizarDiagrama(nombre_usuario);
   }
   
-  public void importarDiagramaSecuencia(String nombre_usuario, clsDiagramaSecuencia aux) throws RemoteException
+  @Override
+  public void importarDiagrama(String nombre_usuario, clsDiagrama aux) throws RemoteException
   {
-    objds.addActor(aux.getActor());
-    objds.addClase(aux.getClase());
-    objds.addConector(aux.getConector());
+    objds.addTabla(aux.getTablas());
+    objds.addRelacion(aux.getRelacion());
     objds.addIds(aux.getIds());
-    actualizarDiagramaSecuencia(nombre_usuario);
+    actualizarDiagrama(nombre_usuario);
   }
   
-  public void actualizarDiagramaSecuencia(String nombre_usuario) throws RemoteException
+  @Override
+  public void actualizarDiagrama(String nombre_usuario) throws RemoteException
   {
     /*System.out.println("**************** TAMAÑOS ******************");
     System.out.println("Actor - SIZE => "+objds.getActor().size());
@@ -147,7 +152,7 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     while (sKeys.hasMoreElements()) 
     {
       String nombre = sKeys.nextElement().toString();
-      enviarDiagramaSecuencia(nombre, true);
+      enviarDiagrama(nombre);
       /*interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
       objcliente.enviarDiagramaSecuencia(nombre_usuario, objds);*/
     }
@@ -162,31 +167,6 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     actualizarDiagramaSecuencia();
   }*/
   
-  public void addActor(clsActor objactor, String nombre_usuario) throws RemoteException
-  {
-    objactor.setId(objds.generarId());
-    objactor.setNombre(generarNombreActor());
-    objds.addActor(objactor);
-    Enumeration sKeys = usuarios.keys();
-    while (sKeys.hasMoreElements()) 
-    {
-      String nombre = (String) sKeys.nextElement();
-      if (nombre.equals(nombre_usuario))
-        enviarActor(nombre, objactor);
-      else
-        enviarDiagramaSecuencia(nombre, false);        
-    }
-  }
-  
-  public void enviarActor(String nombre_usuario, clsActor objactor)
-  {
-    interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
-    try 
-    { objcliente.enviarActor(objds, objactor);  }
-    catch (Exception ex) 
-    { ex.printStackTrace(); }
-  }
-  
   public void enviarMensajeError(String nombre_usuario, String nombre)
   {
     interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
@@ -196,46 +176,19 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     { ex.printStackTrace(); }
   }
   
-  public void addClase(clsClase objclase, String nombre_usuario) throws RemoteException
+  public void addTabla(clsTabla objclase, String nombre_usuario) throws RemoteException
   {
     boolean error = false;
-    if (objclase.getTipo() == 1)
-    {
-      System.out.println("del arbol insertando...");
-      if (objds.verificarClase(objclase.getNombre()))
-        error = true;
-      else
-      {
-        int id = objds.generarId();
-        LinkedList<clsClase> clase = objds.getClase();
-        int dim = clase.size();
-        System.out.println("***************** ANTES DE INSERTAR => "+dim);
-        for (int i = 0; i < dim; i++)
-        {
-          clsClase aux = clase.get(i);
-          if (aux.getTipo() == 1 && objclase.getNombre().equals(aux.getNombre()))
-          {
-            aux.setId(id);
-            break;
-          }
-        }
-        objclase.setId(id);
-        objclase.setTipo(2);
-        objds.addClase(objclase);
-        System.out.println("***************** DESPUES DE INSERTAR => "+objds.getClase().size());
-      }
-    }
-    else
-    {
-      System.out.println("de la paleta insertando...");
-      int id = objds.generarId();
-      objclase.setId(id);
-      objclase.setNombre(generarNombreClase());
-      objds.addClase(objclase);
-      clsClase aux = new clsClase(id, 1, objclase.getClassinterface(), objclase.getNombre(), objclase.getAcceso(), objclase.getSuperior(), objclase.getInferior());
-      //clase aux = new clase(id, 1, objclase.getClassinterface(), objclase.getNombre(), objclase.getAcceso(), null, null);
-      objds.addClase(aux);
-    }
+    
+    System.out.println("de la paleta insertando...");
+    int id = objds.generarId();
+    objclase.setId(id);
+    objclase.setNombreTabla(generarNombreTabla());
+    objds.addTabla(objclase);
+    clsTabla aux = new clsTabla(id, objclase.getNombreTabla(), objclase.getAcceso(), objclase.getSuperior(), objclase.getInferior());
+    //clase aux = new clase(id, 1, objclase.getClassinterface(), objclase.getNombre(), objclase.getAcceso(), null, null);
+    objds.addTabla(aux);
+    
     /*if (error)
       enviarMensajeError(nombre_usuario, objclase.getNombre());
     else
@@ -245,35 +198,37 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
       {
         String nombre = (String) sKeys.nextElement();
         if (nombre.equals(nombre_usuario))
-          enviarClase(nombre_usuario, objclase, true);
+          enviarClase(nombre_usuario, objclase);
         else
-          enviarDiagramaSecuencia(nombre, true);
+          enviarDiagrama(nombre);
       }
     //}
   }
   
-  public void enviarClase(String nombre_usuario, clsClase objclase, boolean updatearbol)
+  public void enviarClase(String nombre_usuario, clsTabla objclase)
   {
     interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
-    try 
-    { objcliente.enviarClase(objds, objclase, updatearbol);  }
+    try{ 
+        objcliente.enviarTabla(objds, objclase);  
+    }
     catch (Exception ex) 
     { ex.printStackTrace(); }
   }
   
-  public void enviarConector(String nombre_usuario, clsEnlace objconector)
+  public void enviarConector(String nombre_usuario, clsRelacion objconector)
   {
     interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
     try 
-    { objcliente.enviarConector(objds, objconector);  }
+    { objcliente.enviarRelacion(objds, objconector);  }
     catch (Exception ex) 
     { ex.printStackTrace(); }
   }
   
-  public void addConector(clsEnlace objconector, String nombre_usuario) throws RemoteException
+  @Override
+  public void addRelacion(clsRelacion objconector, String nombre_usuario) throws RemoteException
   {
     objconector.setId(objds.generarId());
-    objds.addConector(objconector);
+    objds.addRelacion(objconector);
     
     Enumeration sKeys = usuarios.keys();
     while (sKeys.hasMoreElements())
@@ -282,64 +237,25 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
       if (nombre.equals(nombre_usuario))
         enviarConector(nombre_usuario, objconector);
       else
-        enviarDiagramaSecuencia(nombre, false);
+        enviarDiagrama(nombre);
     }
   }
-  
-  private void actualizarActor(clsActor objactor, String nombre, Rectangle s, Rectangle i, Point o, Point d)
+    
+  @Override
+  public void actualizarTabla(String nombre_usuario, clsTabla objclase) throws RemoteException
   {
-    objactor.setNombre(nombre);
-    objactor.setSuperior(s);
-    objactor.setInferior(i);
-    objactor.setPuntoO(o);
-    objactor.setPuntoD(d);
-  }
-  
-  public void actualizarActor(String nombre_usuario, clsActor objactor) throws RemoteException
-  {
-    LinkedList<clsActor> actor = objds.getActor();
-    int dim = actor.size();
-    clsActor aux1 = null;
-    for (int i = 0; i < dim; i++)
-    {
-      clsActor aux2 = actor.get(i);
-      if (aux2.getId() == objactor.getId())
-      {
-        actualizarActor(aux2, objactor.getNombre(), objactor.getSuperior(), objactor.getInferior(), objactor.getPuntoO(), objactor.getPuntoD());
-        aux1 = aux2;
-        actualizarConector(aux2.getId(), aux2.getPuntoO(), aux2.getPuntoD());
-      }
-    }
-    Enumeration sKeys = usuarios.keys();
-    while (sKeys.hasMoreElements()) 
-    {
-      String nombre = (String) sKeys.nextElement();
-      if (nombre.equals(nombre_usuario))
-        enviarActor(nombre_usuario, aux1);
-      else
-        enviarDiagramaSecuencia(nombre, false);        
-    }
-  }
-  
-  public void actualizarClase(String nombre_usuario, clsClase objclase, boolean updatearbol) throws RemoteException
-  {
-    LinkedList<clsClase> clase = objds.getClase();
+    LinkedList<clsTabla> clase = objds.getTablas();
     int dim = clase.size();
-    clsClase aux1 = null;
+    clsTabla aux1 = null;
     for (int i = 0; i < dim; i++)
     {
-      clsClase aux2 = clase.get(i);
+      clsTabla aux2 = clase.get(i);
       //System.out.println("Metodo actualizarClase => tipo="+aux2.getTipo());
-      if (aux2.getTipo() == 2 && objclase.getId() == aux2.getId())
+      if (objclase.getId() == aux2.getId())
       {
-        actualizarClase(aux2, objclase.getClassinterface(), objclase.getNombre(), objclase.getAcceso(), objclase.getAtributos(), objclase.getMetodos(), objclase.getTipo(), objclase.getSuperior(), objclase.getInferior(), objclase.getPuntoO(), objclase.getPuntoD());
+        actualizarTabla(aux2, objclase.getNombreTabla(), objclase.getAcceso(), objclase.getColumnas(), objclase.getSuperior(), objclase.getInferior(), objclase.getPuntoO(), objclase.getPuntoD());
         aux1 = aux2;
-        actualizarConector(aux2.getId(), aux2.getPuntoO(), aux2.getPuntoD());
-      }
-      else
-      {
-        if (aux2.getTipo() == 1 && objclase.getId() == aux2.getId())
-          actualizarClase(aux2, objclase.getClassinterface(), objclase.getNombre(), objclase.getAcceso(), objclase.getAtributos(), objclase.getMetodos(), 1, null, null, null, null);
+        actualizarRelacion(aux2.getId(), aux2.getPuntoO(), aux2.getPuntoD());
       }
     }
     Enumeration sKeys = usuarios.keys();
@@ -347,16 +263,15 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     {
       String nombre = (String) sKeys.nextElement();
       if (nombre.equals(nombre_usuario))
-        enviarClase(nombre, aux1, updatearbol);
+        enviarClase(nombre, aux1);
       else
-        enviarDiagramaSecuencia(nombre, updatearbol);
+        enviarDiagrama(nombre);
     }
   }
   
-  public void actualizarClase(clsClase obj, String estereo, String nombre, String acceso, LinkedList<clsAtributo>a, LinkedList<clsMetodo>m, int tipo, Rectangle s, Rectangle i, Point o, Point d)
+  public void actualizarTabla(clsTabla obj, String nombre, String acceso, LinkedList<clsColumna>a, Rectangle s, Rectangle i, Point o, Point d)
   {
-    obj.setClassinterface(estereo);
-    obj.setNombre(nombre);
+    obj.setNombreTabla(nombre);
     obj.setAcceso(acceso);
     //  actualiza la lista de atributos, si existe el mismo atributo no se añade
     /*generarCodigo objcodigo = new generarCodigo();
@@ -369,29 +284,27 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
         
     //  actualiza la lista de metodos, si existe el mismo metodo no se añade
     
-    
-    obj.setTipo(tipo);
     obj.setSuperior(s);
     obj.setInferior(i);
     obj.setPuntoO(o);
     obj.setPuntoD(d);
   }
   
-  private void actualizarConector(int id, Point po, Point pd)
+  private void actualizarRelacion(int id, Point po, Point pd)
   {
-    LinkedList<clsEnlace> conector = objds.getConector();
+    LinkedList<clsRelacion> conector = objds.getRelacion();
     int dim = conector.size();
     for (int i = 0; i < dim; i++)
     {
-      clsEnlace aux = conector.get(i);
+      clsRelacion aux = conector.get(i);
       if (id == aux.getOrigen())// || objclase.getId() == aux.getDestino())
       {
-        objds.delConector(i);
+        objds.delRelacion(i);
         Point poco = aux.getPuntoO();
         Point pdco = aux.getPuntoD();
-        clsEnlace objconector;
-        objconector = new clsEnlace(aux.getId(), aux.getOrigen(), aux.getDestino(), aux.getObjmetodo(), new Point(po.x, poco.y), new Point(pdco.x, poco.y));
-        objds.addConector(objconector);
+        clsRelacion objconector;
+        objconector = new clsRelacion(aux.getId(), aux.getOrigen(), aux.getDestino(), new Point(po.x, poco.y), new Point(pdco.x, poco.y));
+        objds.addRelacion(objconector);
       }
       else
       {
@@ -399,27 +312,27 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
         {
           Point poco = aux.getPuntoO();
           //Point pdco = aux.getPuntoD();
-          objds.delConector(i);
-          clsEnlace objconector = new clsEnlace(aux.getId(), aux.getOrigen(), aux.getDestino(), aux.getObjmetodo(), new Point(poco.x, poco.y), new Point(pd.x, poco.y));
-          objds.addConector(objconector);
+          objds.delRelacion(i);
+          clsRelacion objconector = new clsRelacion(aux.getId(), aux.getOrigen(), aux.getDestino(), new Point(poco.x, poco.y), new Point(pd.x, poco.y));
+          objds.addRelacion(objconector);
         }
       }
     }
   }
   
-  public void actualizarConector(String nombre_usuario, clsEnlace objconector) throws RemoteException
+  public void actualizarRelacion(String nombre_usuario, clsRelacion objconector) throws RemoteException
   {
-    LinkedList<clsEnlace> conector = objds.getConector();
+    LinkedList<clsRelacion> conector = objds.getRelacion();
     int dim = conector.size();
-    clsEnlace aux = null;
+    clsRelacion aux = null;
     for (int i = 0; i < dim; i++)
     {
       aux = conector.get(i);
       //  if (objconector.getOrigen() == aux.getId() || objconector.getDestino() == aux.getId())
       if (objconector.getId() == aux.getId())
       {
-        objds.delConector(i);
-        objds.addConector(objconector);
+        objds.delRelacion(i);
+        objds.addRelacion(objconector);
         aux = objconector;
         break;
       }
@@ -431,46 +344,31 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
       if (nombre.equals(nombre_usuario))
         enviarConector(nombre, aux);
       else
-        enviarDiagramaSecuencia(nombre, false);        
+        enviarDiagrama(nombre);
     }
   }
   
-  public clsActor verificarActor(Point p) throws RemoteException
-  {
-    LinkedList<clsActor> actor = objds.getActor();
-    int dim = actor.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsActor objactor = actor.get(i);
-      if (objactor.getSuperior().contains(p) || objactor.getInferior().contains(p))
-        return objactor;
-    }
-    return null;
-  }
   
-  public clsClase verificarClase(Point p) throws RemoteException
+  public clsTabla verificarTabla(Point p) throws RemoteException
   {
-    LinkedList<clsClase> clase = objds.getClase();
+    LinkedList<clsTabla> clase = objds.getTablas();
     int dim = clase.size();
     for (int i = 0; i < dim; i++)
     {
-      clsClase objclase = clase.get(i);
-      if (objclase.getTipo() == 2)
-      {
+        clsTabla objclase = clase.get(i);
         if (objclase.getSuperior().contains(p) || objclase.getInferior().contains(p))
-          return objclase;
-      }
+            return objclase;      
     }
     return null;
   }
   
-  public clsEnlace verificarConector(Point p) throws RemoteException
+  public clsRelacion verificarRelacion(Point p) throws RemoteException
   {
-    LinkedList<clsEnlace> conector = objds.getConector();
+    LinkedList<clsRelacion> conector = objds.getRelacion();
     int dim = conector.size();
     for (int i = 0; i < dim; i++)
     {
-      clsEnlace objconector = conector.get(i);
+      clsRelacion objconector = conector.get(i);
       if (objconector.getEnlace().contains(p))
         return objconector;
     }
@@ -521,26 +419,16 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     this.listUsuario = listUsuario;
   }
   
-  public clsDiagramaSecuencia getObjds() throws RemoteException
+  public clsDiagrama getObjds() throws RemoteException
   { return objds; }
   
-  public void setObjds(clsDiagramaSecuencia objds) throws RemoteException
+  public void setObjds(clsDiagrama objds) throws RemoteException
   { this.objds = objds; }
 
   public Object getFigura() throws RemoteException
   { return figura;  }
-  
-  public String generarNombreActor()
-  {
-    String nombre = "Actor";
-    int id = 1;
-    while (nombre_actor.contains(nombre+id))
-      id++;
-    nombre_actor.add(nombre+id);
-    return nombre+id;
-  }
-  
-  public String generarNombreClase()
+   
+  public String generarNombreTabla()
   {
     String nombre = "Object";
     int id = 1;
@@ -551,146 +439,74 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
   }
   
   //********************** PROPIEDADES *******************
-  public void addAtributo(int id, clsAtributo objatributo, boolean updatearbol)  throws RemoteException
+  public void addColumna(int id, clsColumna objatributo)  throws RemoteException
   {
-    LinkedList<clsClase> clase = objds.getClase();
+    LinkedList<clsTabla> clase = objds.getTablas();
     int dim = clase.size();
-    clsClase aux1 = null;
+    clsTabla aux1 = null;
     for (int i = 0; i < dim; i++)
     {
-      clsClase aux2 = clase.get(i);
-      if (aux2.getTipo() == 2 && id == aux2.getId())
+      clsTabla aux2 = clase.get(i);
+      if (id == aux2.getId())
       {
-        aux2.addAtributo(objatributo);
+        aux2.addColumna(objatributo);
         aux1 = aux2;
-      }
-      else
-      {
-        if (aux2.getTipo() == 1 && id == aux2.getId())
-          aux2.addAtributo(objatributo);
       }
     }
     Enumeration sKeys = usuarios.keys();
     while (sKeys.hasMoreElements()) 
     {
       String nombre = (String) sKeys.nextElement();
-      enviarAtributo(nombre, aux1, updatearbol);
+      enviarColumna(nombre, aux1);
     }
   }
   
-  public void delAtributo(int id, String nombre_atributo, boolean updatearbol) throws RemoteException
+  @Override
+  public void delColumna(int id, String nombre_atributo) throws RemoteException
   {
-    LinkedList<clsClase> clase = objds.getClase();
+    LinkedList<clsTabla> clase = objds.getTablas();
     int dim = clase.size();
-    clsClase aux1 = null;
+    clsTabla aux1 = null;
     for (int i = 0; i < dim; i++)
     {
-      clsClase aux2 = clase.get(i);
-      if (aux2.getTipo() == 2 && id == aux2.getId())
+      clsTabla aux2 = clase.get(i);
+      if (id == aux2.getId())
       {
-        aux2.eliminarAtributo(nombre_atributo);
+        aux2.eliminarColumna(nombre_atributo);
         aux1 = aux2;
-      }
-      else
-      {
-        if (aux2.getTipo() == 1 && id == aux2.getId())
-          aux2.eliminarAtributo(nombre_atributo);
       }
     }
     Enumeration sKeys = usuarios.keys();
     while (sKeys.hasMoreElements()) 
     {
       String nombre = (String) sKeys.nextElement();
-      enviarAtributo(nombre, aux1, updatearbol);
+      enviarColumna(nombre, aux1);
     }
   }
   
-  public void enviarAtributo(String nombre_usuario, clsClase objclase, boolean updatearbol)
+  public void enviarColumna(String nombre_usuario, clsTabla objclase)
   {
     interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
     try 
-    { objcliente.enviarAtributo(objds, objclase, updatearbol); }
+    { 
+        objcliente.enviarColumna(objds, objclase); 
+    }
     catch (Exception ex) 
     { ex.printStackTrace(); }
   }
-  
-  public void addMetodo(int id, clsMetodo objmetodo, boolean updatearbol) throws RemoteException
+       
+  @Override
+  public void eliminarTabla(int id) throws RemoteException
   {
-    //generarCodigo objcodigo = new generarCodigo();
-    LinkedList<clsClase> clase = objds.getClase();
+    LinkedList<clsTabla> clase = objds.getTablas();
     int dim = clase.size();
-    clsClase aux1 = null;
     for (int i = 0; i < dim; i++)
     {
-      clsClase aux2 = clase.get(i);
-      if (aux2.getTipo() == 2 && id == aux2.getId())
-      {
-        aux2.addMetodo(objmetodo);
-        aux1 = aux2;
-      }
-      else
-      {
-        if (aux2.getTipo() == 1 && id == aux2.getId())
-          aux2.addMetodo(objmetodo);
-      }
-    }
-    Enumeration sKeys = usuarios.keys();
-    while (sKeys.hasMoreElements()) 
-    {
-      String nombre = (String) sKeys.nextElement();
-      enviarMetodo(nombre, aux1, updatearbol);
-    }
-  }
-  
-  public void delMetodo(int id, clsMetodo objmetodo, boolean updatearbol) throws RemoteException
-  {
-    LinkedList<clsClase> clase = objds.getClase();
-    int dim = clase.size();
-    clsClase aux1 = null;
-    for (int i = 0; i < dim; i++)
-    {
-      clsClase aux2 = clase.get(i);
-      if (aux2.getTipo() == 2 && id == aux2.getId())
-      {
-        aux2.eliminarMetodo(objmetodo.getNombre());
-        aux1 = aux2;
-      }
-      else
-      {
-        if (aux2.getTipo() == 1 && id == aux2.getId())
-          aux2.eliminarMetodo(objmetodo.getNombre());
-      }
-    }
-    Enumeration sKeys = usuarios.keys();
-    while (sKeys.hasMoreElements()) 
-    {
-      String nombre = (String) sKeys.nextElement();
-      enviarMetodo(nombre, aux1, updatearbol);
-    }
-  }
-  
-  public void enviarMetodo(String nombre_usuario, clsClase objclase, boolean updatearbol)
-  {
-    interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
-    try 
-    { objcliente.enviarMetodo(objds, objclase, updatearbol); }
-    catch (Exception ex) 
-    { ex.printStackTrace(); }
-  }
-  
-  
-  
-  public void eliminarActor(int id) throws RemoteException
-  {
-    LinkedList<clsActor> actor = objds.getActor();
-    int dim = actor.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsActor objactor = actor.get(i);
-      if (id == objactor.getId())
+      clsTabla objclase = clase.get(i);
+      if (id == objclase.getId())
       {
         eliminarTodosEnlace(id);
-        objds.delActor(i);
+        objds.delTabla(i);
         break;
       }
     }
@@ -698,42 +514,21 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     while (sKeys.hasMoreElements()) 
     {
       String nombre = (String) sKeys.nextElement();
-      enviarDiagramaSecuencia(nombre, false);        
+      enviarDiagrama(nombre);
     }
   }
   
-  public void eliminarClase(int id, boolean updatearbol) throws RemoteException
+  @Override
+  public void eliminarRelacion(int id) throws RemoteException
   {
-    LinkedList<clsClase> clase = objds.getClase();
-    int dim = clase.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsClase objclase = clase.get(i);
-      if (id == objclase.getId() && objclase.getTipo() == 2)
-      {
-        eliminarTodosEnlace(id);
-        objds.delClase(i);
-        break;
-      }
-    }
-    Enumeration sKeys = usuarios.keys();
-    while (sKeys.hasMoreElements()) 
-    {
-      String nombre = (String) sKeys.nextElement();
-      enviarDiagramaSecuencia(nombre, false);
-    }
-  }
-  
-  public void eliminarEnlace(int id) throws RemoteException
-  {
-    LinkedList<clsEnlace> enlace = objds.getConector();
+    LinkedList<clsRelacion> enlace = objds.getRelacion();
     int dim = enlace.size();
     for (int i = 0; i < dim; i++)
     {
-      clsEnlace objenlace = enlace.get(i);
+      clsRelacion objenlace = enlace.get(i);
       if (id == objenlace.getId())
       {
-        objds.delConector(i);
+        objds.delRelacion(i);
         break;
       }
     }
@@ -741,23 +536,23 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     while (sKeys.hasMoreElements()) 
     {
       String nombre = (String) sKeys.nextElement();
-      enviarDiagramaSecuencia(nombre, false);        
+      enviarDiagrama(nombre);        
     }
   }
   
   private void eliminarTodosEnlace(int id)
   {
-    LinkedList<clsEnlace> enlace = objds.getConector();
+    LinkedList<clsRelacion> enlace = objds.getRelacion();
     int dim = enlace.size();
     //System.out.println("=========================> TAMAÑO: "+dim);
     for (int i = 0; i < dim; i++)
     {
-      clsEnlace aux = enlace.get(i);
+      clsRelacion aux = enlace.get(i);
       //System.out.println(" "+id+"="+aux.getOrigen()+", "+id+"="+aux.getDestino());
       if (id == aux.getOrigen() || id == aux.getDestino())
       {
-        objds.delConector(i);
-        enlace =  objds.getConector();
+        objds.delRelacion(i);
+        enlace =  objds.getRelacion();
         dim = enlace.size();
         i--;
       }
@@ -768,4 +563,5 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
       }*/
     }
   }
+  
 }

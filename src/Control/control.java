@@ -14,38 +14,32 @@ import Presentacion.*;
 public class control implements MouseListener, MouseMotionListener
 {
   private static final String PUNTERO  = "Puntero";
-  private static final String CONECTOR = "Conector";
-  private static final String ACTOR    = "Actor";
-  private static final String INTERFAZ = "Interfaz";
-  private static final String PROCESO  = "Proceso";
-  private static final String ENTIDAD  = "Entidad";
+  private static final String CONECTOR = "Relacion";
+  private static final String TABLA    = "Tabla";
   /*private static final String FUENTE   = "Fuente";
   private static final String COLOR    = "Color";*/
   
   private String usuario  = "";
   private String modo     = "Puntero";   //  modo => del 0..8  (puntero, conector, actor, interfaz, proceso, entidad, fuente, color)
-  private clsDiagramaSecuencia objds;
+  private clsDiagrama objds;
   //private Object figura = null;      //  figura => si el objecto es selecionado(actor, clase, conector)*/
   
-  public clsClase objclase = null;
-  public clsActor objactor = null;
-  public clsEnlace objconector = null;
+  public clsTabla objTabla = null;
+  public clsRelacion objconector = null;
   
   private Point p, o = null, d = null;
   private Point dif1, dif2, dif3, dif4, pm;
   private Rectangle fs, fi;
   private Point po, pd;
-  private boolean esfigura = false, arbolsw = false;
+  private boolean esfigura = false;
   private int click = 1;
-  private clsActor origen_a, destino_a;
-  private clsClase origen_c, destino_c, arbolobj = null;
+  private clsTabla origen_c, destino_c = null;
 
   private interfaceServidor objservidor;
   private graficadorDiagSec objgraficador;
   private formCliente objcliente;
-  private DynamicTree arbol;
   
-  public frmClase form2;
+  public frmTabla form2;
   
   public control(interfaceServidor objservidor, graficadorDiagSec objgraficador)
   {
@@ -73,12 +67,12 @@ public class control implements MouseListener, MouseMotionListener
     this.modo = modo;
   }
   
-  public clsDiagramaSecuencia getObjds()
+  public clsDiagrama getObjds()
   {
     return objds;
   }
 
-  public void setObjds(clsDiagramaSecuencia objds)
+  public void setObjds(clsDiagrama objds)
   {
     this.objds = objds;
   }
@@ -108,79 +102,37 @@ public class control implements MouseListener, MouseMotionListener
     this.objservidor = objservidor;
   }
   
-  public DynamicTree getArbol()
+  public boolean verificarTabla()
   {
-    return arbol;
-  }
+    try 
+    {
 
-  public void setArbol(DynamicTree arbol)
-  {
-    this.arbol = arbol;
-  }
-  
-  private boolean verificarActor()
-  {
-    try 
-    {
-      objactor = objservidor.verificarActor(p);
-      objclase = null;
+      objTabla = objservidor.verificarTabla(p);
       objconector = null;
     }
     catch (Exception ex) 
     { ex.printStackTrace(); }
-    return objactor != null;
-  }
-  
-  public boolean verificarClase()
-  {
-    try 
-    {
-      objactor = null;
-      objclase = objservidor.verificarClase(p);
-      objconector = null;
-    }
-    catch (Exception ex) 
-    { ex.printStackTrace(); }
-    return objclase != null;
+    return objTabla != null;
   }
   
   public boolean verificarConector()
   {
     try 
     {
-      objactor = null;
-      objclase = null;
-      objconector = objservidor.verificarConector(p);
+      objTabla = null;
+      objconector = objservidor.verificarRelacion(p);
     }
     catch (Exception ex) 
     { ex.printStackTrace(); }
     return objconector != null;
   }
-  
-  public void enviarActor(clsActor objactor)
+    
+  public void enviarTabla(clsTabla objclase)
   {
     try 
     {
-      objservidor.addActor(objactor, usuario);
-    }
-    catch (RemoteException f) 
-    { f.printStackTrace();  }
-    modo = PUNTERO;
-    esfigura = true;
-  }
-  
-  private void enviarActor()
-  {
-    clsActor objactor = new clsActor(0, "", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
-    System.out.println("Control.control.enviarActor() " + objactor);
-    enviarActor(objactor);
-  }
-  
-  public void enviarClase(clsClase objclase)
-  {
-    try 
-    {
-      objservidor.addClase(objclase, usuario);
+        System.out.println("control.enviarTabla");
+      objservidor.addTabla(objclase, usuario);
     }
     catch (RemoteException f)
     { f.printStackTrace();  }
@@ -188,27 +140,20 @@ public class control implements MouseListener, MouseMotionListener
     esfigura = true;
   }
   
-  private void enviarClase()
+  private void enviarTabla()
   {
-    clsClase objclase = null;
-    if (arbolsw && arbolobj != null)
-    {
-      objclase = new clsClase(0, 1, PROCESO, arbolobj.getNombre(), arbolobj.getAcceso(), new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
-      objclase.setAtributos(arbolobj.getAtributos());
-      objclase.setMetodos(arbolobj.getMetodos());
-      arbolsw = false;
-      arbolobj = null;
-    }
-    else
-      objclase = new clsClase(0, 2, getModo(), "", "public", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
-      System.out.println("Control.control.enviarClase() " + objclase);
-    enviarClase(objclase);
+    clsTabla objclase = null;
+       //objclase = new clsTabla(0, 2, getModo(), "", "public", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
+        objclase = new clsTabla(0, "", "public", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
+        System.out.println("Control.control.enviarTabla() " + objclase);
+        enviarTabla(objclase);
   }
   
   private void enviarConector()
   {
+      /* ESTO SE BLOQUEO  POR FALT A DE HACER LIMBERT
     //clase destino = (clase) this.destino;    
-    clsEnlace objconector;
+    clsRelacion objconector;
     int idorigen = 0, iddestino = 0;
     //metodos objmetodo = new metodos();
     Point po = null, pd = null;
@@ -246,26 +191,12 @@ public class control implements MouseListener, MouseMotionListener
     { f.printStackTrace();  }
     modo = PUNTERO;
     esfigura = true;
+      */
   }
-  
-  public void addActor(clsActor objactor)
+    
+  public void addRelacion(clsRelacion objconector)
   {
-    objds.addActor(objactor);
-    objds.addIds(""+objactor.getId());
-    modo = PUNTERO;
-  }
-  
-  /*public void addClase(clase objclase)
-  {
-    objds.addClase(objclase);
-    objds.addIds(""+objclase.getId());
-    modo = PUNTERO;
-    //arbol.addObject(null, objclase, true);
-  }*/
-  
-  public void addConector(clsEnlace objconector)
-  {
-    objds.addConector(objconector);
+    objds.addRelacion(objconector);
     objds.addIds(""+objconector.getId());
     modo = PUNTERO;
   }
@@ -277,29 +208,8 @@ public class control implements MouseListener, MouseMotionListener
     catch (RemoteException f) 
     { f.printStackTrace();  }*/
   }
-  
-  private void enviarCoordenadaActor(Point dif1, Point dif2, Point dif3, Point dif4, Point pm, clsActor objactor)
-  {
-    Rectangle fs = objactor.getSuperior();
-    fs.setLocation(pm.x - dif1.x, pm.y - dif1.y);
-    Rectangle fi = objactor.getInferior();
-    fi.setLocation(pm.x - dif2.x, pm.y - dif2.y);
-    Point o = objactor.getPuntoO();
-    Point d = objactor.getPuntoD();
-    o.setLocation(pm.x - dif3.x, pm.y - dif3.y);
-    d.setLocation(pm.x - dif4.x, pm.y - dif4.y);
-    enviarActualizarActor(objactor);
-  }
-  
-  public void enviarActualizarActor(clsActor objactor)
-  {
-    try 
-    { objservidor.actualizarActor(usuario, objactor);  }
-    catch (RemoteException f) 
-    { f.printStackTrace();  }
-  }
-  
-  private void enviarCoordenadaClase(Point dif1, Point dif2, Point dif3, Point dif4, Point pm, clsClase objclase)
+    
+  private void enviarCoordenadaTabla(Point dif1, Point dif2, Point dif3, Point dif4, Point pm, clsTabla objclase)
   {
     //System.out.println("ENVIAR CORD CLASE => "+objclase);
     Rectangle fs = objclase.getSuperior();
@@ -310,18 +220,19 @@ public class control implements MouseListener, MouseMotionListener
     Point d = objclase.getPuntoD();
     o.setLocation(pm.x - dif3.x, pm.y - dif3.y);
     d.setLocation(pm.x - dif4.x, pm.y - dif4.y);
-    enviarActualizarClase(objclase, false);
+    enviarActualizarTabla(objclase, false);
   }
   
-  public void enviarActualizarClase(clsClase objclase, boolean updatearbol)
+  public void enviarActualizarTabla(clsTabla objclase, boolean updatearbol)
   {
-    try 
-    { objservidor.actualizarClase(usuario, objclase, updatearbol); }
+    try{ 
+        objservidor.actualizarTabla(usuario, objclase); 
+    }
     catch (RemoteException f) 
     { f.printStackTrace();  }
   }
   
-  private void enviarCoordenadaConector(Point dif1, Point dif2, Point dif3, Point pm, clsEnlace objconector)
+  private void enviarCoordenadaRelacion(Point dif1, Point dif2, Point dif3, Point pm, clsRelacion objconector)
   {
     Rectangle fs = objconector.getEnlace();
     fs.setLocation(fs.x, pm.y - dif1.y);
@@ -331,50 +242,32 @@ public class control implements MouseListener, MouseMotionListener
     //d.setLocation(pm.x - dif4.x, pm.y - dif4.y);
     o.setLocation(o.x, pm.y - dif2.y);
     d.setLocation(d.x, pm.y - dif3.y);
-    enviarActualizarConector(objconector);
+    enviarActualizarRelacion(objconector);
   }
   
-  public void enviarActualizarConector(clsEnlace objconector)
+  public void enviarActualizarRelacion(clsRelacion objconector)
   {
     try 
-    { objservidor.actualizarConector(usuario, objconector);  }
+    { objservidor.actualizarRelacion(usuario, objconector);  }
     catch (RemoteException f) 
     { f.printStackTrace();  }
   }
-  
-  //******************************
-  public void actualizarActor(clsActor objactor)
+    
+  private void actualizarRelacion(int id, Point po, Point pd)
   {
-    LinkedList<clsActor> actor = objds.getActor();
-    int dim = actor.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsActor aux = actor.get(i);
-      if (objactor.getId() == aux.getId())
-      {
-        objds.delActor(i);
-        objds.addActor(objactor);
-        actualizarConector(objactor.getId(), objactor.getPuntoO(), objactor.getPuntoD());
-        break;
-      }
-    }
-  }
-  
-  private void actualizarConector(int id, Point po, Point pd)
-  {
-    LinkedList<clsEnlace> conector = objds.getConector();
+    LinkedList<clsRelacion> conector = objds.getRelacion();
     int dim = conector.size();
     for (int i = 0; i < dim; i++)
     {
-      clsEnlace aux = conector.get(i);
+      clsRelacion aux = conector.get(i);
       if (id == aux.getOrigen())// || objclase.getId() == aux.getDestino())
       {
-        objds.delConector(i);
+        objds.delRelacion(i);
         Point poco = aux.getPuntoO();
         Point pdco = aux.getPuntoD();
-        clsEnlace objconector;
-        objconector = new clsEnlace(aux.getId(), aux.getOrigen(), aux.getDestino(), aux.getObjmetodo(), new Point(po.x, poco.y), new Point(pdco.x, poco.y));
-        objds.addConector(objconector);
+        clsRelacion objconector;
+        objconector = new clsRelacion(aux.getId(), aux.getOrigen(), aux.getDestino(), new Point(po.x, poco.y), new Point(pdco.x, poco.y));
+        objds.addRelacion(objconector);
       }
       else
       {
@@ -382,44 +275,44 @@ public class control implements MouseListener, MouseMotionListener
         {
           Point poco = aux.getPuntoO();
           //Point pdco = aux.getPuntoD();
-          objds.delConector(i);
-          clsEnlace objconector = new clsEnlace(aux.getId(), aux.getOrigen(), aux.getDestino(), aux.getObjmetodo(), new Point(poco.x, poco.y), new Point(pd.x, poco.y));
-          objds.addConector(objconector);
+          objds.delRelacion(i);
+          clsRelacion objconector = new clsRelacion(aux.getId(), aux.getOrigen(), aux.getDestino(), new Point(poco.x, poco.y), new Point(pd.x, poco.y));
+          objds.addRelacion(objconector);
         }
       }
     }
   }
   
-  public void actualizarClase(clsClase objclase)
+  public void actualizarTabla(clsTabla objclase)
   {
-    LinkedList<clsClase> clase = objds.getClase();
+    LinkedList<clsTabla> clase = objds.getTablas();
     int dim = clase.size();
     for (int i = 0; i < dim; i++)
     {
-      clsClase aux = clase.get(i);
+      clsTabla aux = clase.get(i);
       if (objclase.getId() == aux.getId())
       {
-        objds.delClase(i);
-        objds.addClase(objclase);
+        objds.delRelacion(i);
+        objds.addTabla(objclase);
         //arbol.actualizarArbolClase(objclase);
-        actualizarConector(objclase.getId(), objclase.getPuntoO(), objclase.getPuntoD());
+        actualizarRelacion(objclase.getId(), objclase.getPuntoO(), objclase.getPuntoD());
         break;
       }
     }
     
   }
   
-  public void actualizarConector(clsEnlace objconector)
+  public void actualizarRelacion(clsRelacion objconector)
   {
-    LinkedList<clsEnlace> conector = objds.getConector();
+    LinkedList<clsRelacion> conector = objds.getRelacion();
     int dim = conector.size();
     for (int i = 0; i < dim; i++)
     {
-      clsEnlace aux = conector.get(i);
+      clsRelacion aux = conector.get(i);
       if (objconector.getId() == aux.getId())
       {
-        objds.delConector(i);
-        objds.addConector(objconector);
+        objds.delRelacion(i);
+        objds.addRelacion(objconector);
         break;
       }
     }
@@ -427,27 +320,29 @@ public class control implements MouseListener, MouseMotionListener
   
   private boolean verificar(Point p)    //  ESTE FALTA PARA EL SERVIDOR
   {
-    LinkedList<clsActor> actor = objds.getActor();
-    int dim = actor.size();
+    System.out.println("control.verificar !!! deshabilitado! x limbert");
+   /*
+    LinkedList<clsTabla> tabla = objds.getTablas();
+    int dim = tabla.size();
     for (int i = 0; i < dim; i++)
     {
-      clsActor objactor = actor.get(i);
+      clsActor objactor = tabla.get(i);
       Rectangle fig = objactor.getInferior();
       if (fig.contains(p))
       {
         if (click == 1)
-          origen_a = objactor;
+          origen_c = objactor;
         else
-          destino_a = objactor;
+          destino_c = objactor;
         return true;
       }
     }
   
-    LinkedList<clsClase> clase = objds.getClase();
+    LinkedList<clsTabla> clase = objds.getClase();
     dim = clase.size();
     for (int i = 0; i < dim; i++)
     {
-      clsClase objclase = clase.get(i);
+      clsTabla objclase = clase.get(i);
       if (objclase.getTipo() == 2)
       {
         Rectangle fig = objclase.getInferior();
@@ -462,16 +357,18 @@ public class control implements MouseListener, MouseMotionListener
       }
     }
     return false;
+   */
+   return false;
   }
   
   
-  private clsClase obtenerClase(int iddestino)
+  private clsTabla obtenerTabla(int iddestino)
   {
-    LinkedList<clsClase> clase = objds.getClase();
-    int dim = clase.size();
+    LinkedList<clsTabla> tablas = objds.getTablas();
+    int dim = tablas.size();
     for (int i = 0; i < dim; i++)
     {
-      clsClase objclase = clase.get(i);
+      clsTabla objclase = tablas.get(i);
       if (objclase.getId() == iddestino)
         return objclase;
     }
@@ -485,28 +382,13 @@ public class control implements MouseListener, MouseMotionListener
     p = e.getPoint();
     if (modo.equals(PUNTERO))
     {
-      esfigura = verificarActor();
-      if (esfigura)
-      {
-        fs = objactor.getSuperior();
-        fi = objactor.getInferior();
-        po = objactor.getPuntoO();
-        pd = objactor.getPuntoD();
-        dif1 = new Point(p.x - fs.x, p.y - fs.y);
-        dif2 = new Point(p.x - fi.x, p.y - fi.y);
-        dif3 = new Point(p.x - po.x, p.y - po.y);
-        dif4 = new Point(p.x - pd.x, p.y - pd.y);
-        //System.out.println("SOY OBJECTO, actor = "+objactor);
-      }
-      else
-      {
-        esfigura = verificarClase();
+        esfigura = verificarTabla();
         if (esfigura)
         {
-          fs = objclase.getSuperior();
-          fi = objclase.getInferior();
-          po = objclase.getPuntoO();
-          pd = objclase.getPuntoD();
+          fs = objTabla.getSuperior();
+          fi = objTabla.getInferior();
+          po = objTabla.getPuntoO();
+          pd = objTabla.getPuntoD();
           dif1 = new Point(p.x - fs.x, p.y - fs.y);
           dif2 = new Point(p.x - fi.x, p.y - fi.y);
           dif3 = new Point(p.x - po.x, p.y - po.y);
@@ -526,8 +408,7 @@ public class control implements MouseListener, MouseMotionListener
             dif3 = new Point(p.x - pd.x, p.y - pd.y);
             //System.out.println("SOY OBJECTO, conector = "+objconector);
           }
-        }
-      }
+        }      
     }
     //objgraficador.actualizarGrafica();
   }
@@ -535,16 +416,13 @@ public class control implements MouseListener, MouseMotionListener
   public void mouseReleased(MouseEvent e)
   {
     p = e.getPoint();
-    if (modo.equals(ACTOR))
-      enviarActor();
-    if (modo.equals(INTERFAZ) || modo.equals(PROCESO) || modo.equals(ENTIDAD))
-      enviarClase();
+    if (modo.equals(TABLA))
+        enviarTabla();
     if (modo.equals(CONECTOR))
     {
       if (click == 1)
       {
         //origen = verificar(p);
-        origen_a = null;
         origen_c = null;
         if (verificar(p))
         {
@@ -557,7 +435,6 @@ public class control implements MouseListener, MouseMotionListener
       else
       {
         //destino = verificar(p);
-        destino_a = null;
         destino_c = null;
         if (verificar(p))
         {
@@ -575,28 +452,21 @@ public class control implements MouseListener, MouseMotionListener
   public void mouseClicked(MouseEvent e)
   {
     int cont = e.getClickCount();
-    
-    if (esfigura && objactor != null && cont == 2)
+      
+    if (esfigura && objTabla != null && cont == 2)
     {
-      frmActor formActor = new frmActor(objcliente, "?", true);
-      formActor.cargarPropiedad(this, objactor);
-      formActor.setVisible(true);
-    }
-    
-    if (esfigura && objclase != null && cont == 2)
-    {
-      form2 = new frmClase(objcliente, "?", true);
-      form2.cargarPropiedad(this, objclase);
+      form2 = new frmTabla(objcliente, "?", true);
+      form2.cargarPropiedad(this, objTabla);
       form2.setVisible(true);
     }
     
     if (esfigura && objconector != null && cont == 2)
     {
       int iddestino = objconector.getDestino();
-      clsClase destino_c = obtenerClase(iddestino);
+      clsTabla destino_c = obtenerTabla(iddestino);
       if (destino_c != null)
       {
-        frmEnlace formConector = new frmEnlace(objcliente, "?", true);
+        frmRelacion formConector = new frmRelacion(objcliente, "?", true);
         formConector.cargarPropiedad(this, destino_c, objconector);
         formConector.setVisible(true);
       }
@@ -622,110 +492,46 @@ public class control implements MouseListener, MouseMotionListener
     if (esfigura)
     {
       pm = e.getPoint();
-      if (objactor != null)
-        enviarCoordenadaActor(dif1, dif2, dif3, dif4, pm, objactor);
-      if (objclase != null)
-        enviarCoordenadaClase(dif1, dif2, dif3, dif4, pm, objclase);
+      if (objTabla != null)
+        enviarCoordenadaTabla(dif1, dif2, dif3, dif4, pm, objTabla);
       if (objconector != null)
-        enviarCoordenadaConector(dif1, dif2, dif3, pm, objconector);
+        enviarCoordenadaRelacion(dif1, dif2, dif3, pm, objconector);
     }
   }
 
-  public void mouseMoved(MouseEvent e)
-  {}
-
-  public boolean isArbolsw()
-  {
-    return arbolsw;
-  }
-
-  public void setArbolsw(boolean arbolsw)
-  {
-    this.arbolsw = arbolsw;
-  }
-
-  public clsClase getArbolobj()
-  {
-    return arbolobj;
-  }
-
-  public void setArbolobj(clsClase arbolobj)
-  {
-    this.arbolobj = arbolobj;
-  }
-  
+  public void mouseMoved(MouseEvent e){}  
   //**************** PARA LAS PROPIEDADES *********************
   //******** ATRIBUTO
-  public void addAtributo(int id, clsAtributo objatributo, boolean updatearbol)
+  public void addColumna(int id, clsColumna objatributo)
   {
     try 
-    { objservidor.addAtributo(id, objatributo, updatearbol); }
+    { objservidor.addColumna(id, objatributo); }
     catch (Exception ex) 
     { ex.printStackTrace(); }
   }
   
-  public void delAtributo(int id, String nombre_atributo, boolean updatearbol)
+  public void delColumna(int id, String nombre_atributo)
   {
     try 
-    { objservidor.delAtributo(id, nombre_atributo, updatearbol); }
+    { objservidor.delColumna(id, nombre_atributo); }
     catch (Exception ex) 
     { ex.printStackTrace(); }
   }
   
-  public void actualizarFormClaseAtributo(clsClase objclase)
+  public void actualizarFormClaseAtributo(clsTabla objclase)
   {
     if (form2 != null)
       form2.actualizarAtributo(objclase);
-  }
-  
-  //********* METODO
-  public void addMetodo(int id, clsMetodo objmetodo, boolean updatearbol)
-  {
-    //System.out.println("PASO 1 PARA ADD METODO id="+id);
-    try
-    { objservidor.addMetodo(id, objmetodo, updatearbol); }
-    catch (Exception ex) 
-    { ex.printStackTrace(); }
-  }
-  
-  public void delMetodo(int id, clsMetodo objmetodo, boolean updatearbol)
-  {
-    try 
-    { objservidor.delMetodo(id, objmetodo, updatearbol); }
-    catch (Exception ex) 
-    { ex.printStackTrace(); }
-  }
-  
-  public void actualizarFormClaseMetodo(clsClase objclase)
-  {
-    if (form2 != null)
-      form2.actualizarMetodo(objclase);
-  }
-  
-  //*************************** ELIMINACION DE ACTOR, CLASE, ENLACE
-  public void eliminarActor(int id)
+  }  
+ 
+  public void eliminarTabla(int id)
   {
     try
     {
-      if (objactor != null)
+      if (objTabla != null)
       {
-        objservidor.eliminarActor(objactor.getId());
-        objactor = null;
-      }
-    }
-    catch (Exception ex) 
-    { ex.printStackTrace(); }
-    
-  }
-  
-  public void eliminarClase(int id)
-  {
-    try
-    {
-      if (objclase != null)
-      {
-        objservidor.eliminarClase(objclase.getId(), true);
-        objclase = null;
+        objservidor.eliminarTabla(objTabla.getId());
+        objTabla = null;
       }
     }
     catch (Exception ex) 
@@ -738,7 +544,7 @@ public class control implements MouseListener, MouseMotionListener
     {
       if (objconector != null)
       {
-        objservidor.eliminarEnlace(objconector.getId());
+        objservidor.eliminarRelacion(objconector.getId());
         objconector = null;
       }
     }

@@ -10,13 +10,14 @@ import java.util.LinkedList;
 
 public class guardarXMI
 {
+  
   static PrintWriter outputFile;
-  private clsDiagramaSecuencia objds;
+  private clsDiagrama objds;
   
-  private LinkedList<clsClase> clase = new LinkedList<clsClase>();
-  private LinkedList<clsEnlace> conector = new LinkedList<clsEnlace>();
+  private LinkedList<clsTabla> clase = new LinkedList<clsTabla>();
+  private LinkedList<clsRelacion> conector = new LinkedList<clsRelacion>();
   
-  public guardarXMI(clsDiagramaSecuencia objds)
+  public guardarXMI(clsDiagrama objds)
   {
     this.objds = objds;
   }
@@ -44,7 +45,6 @@ public class guardarXMI
     //*************************** fin clases  ***********************
     outputFile.println("\t\t\t\t</UML:Collaboration>");
     //************** declaracion de los stereotipos (interfaz, control, entidad) => (boundary, control, entity)
-    declaracionEstereotipoClase();
     
     outputFile.println("\t\t\t</UML:Namespace.ownedElement>");
     outputFile.println("\t\t</UML:Model>");
@@ -87,8 +87,7 @@ public class guardarXMI
           </UML:Collaboration.interaction>
      */
     outputFile.println("\t\t\t\t\t<UML:Collaboration.interaction>");
-    conector = objds.getConector();
-    //int dim = conector.size();
+    // conector = objds.getConector(); limbert
     int dim = 0;
     if (dim > 0)
     {
@@ -103,15 +102,15 @@ public class guardarXMI
   
   public void declaracionClase()
   {
-    clase = objds.getClase();
+    clase = objds.getTablas();
     int dim = clase.size();
     if (dim > 0)    //  SI ES MAYOR SE DECLARAN TODAS LAS CLASES EXISTENTE
     {
       outputFile.println("\t\t\t\t\t<UML:Namespace.ownedElement>");
       for (int i = 0; i < dim; i++)
       {
-        clsClase objclase = clase.get(i);
-        if (objclase.getTipo() == 2)
+        clsTabla objclase = clase.get(i);
+        // limbert if (objclase.getTipo() == 2)
           addClase(clase.get(i));
       }
       outputFile.println("\t\t\t\t\t</UML:Namespace.ownedElement>");
@@ -119,87 +118,29 @@ public class guardarXMI
     //outputFile.println("");
   }
   
-  private void declaracionEstereotipoClase()
-  {
-    clase = objds.getClase();
-    int dim = clase.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsClase objclase = clase.get(i);
-      String id = "UMLClassifierRole."+objclase.getId();
-      //  (interfaz, control, entidad) => (boundary, control, entity)
-      String estereotipo = "";
-      System.out.println("INGLES => "+objclase.getClassinterface());
-      if (objclase.getTipo() == 2)
-      {
-      if (objclase.getClassinterface().equals("Interfaz"))
-        estereotipo = "boundary";
-      if (objclase.getClassinterface().equals("Proceso"))
-        estereotipo = "control";
-      if (objclase.getClassinterface().equals("Entidad"))
-        estereotipo = "entity";
-      }
-      outputFile.println("\t\t\t\t<UML:Stereotype xmi.id=\"X.56\" name=\""+estereotipo+"\" extendedElement=\""+id+"\"/>");
-      
-    }
-  }
   
-  private void addClase(clsClase objclase)
+  private void addClase(clsTabla objclase)
   {
     String id = "UMLClassifierRole."+objclase.getId();
-    outputFile.println("\t\t\t\t\t\t<UML:ClassifierRole xmi.id=\""+id+"\" name=\""+objclase.getNombre()+"\" visibility=\""+objclase.getAcceso()+"\" isSpecification=\"false\" isRoot=\"false\" isLeaf=\"false\" isAbstract=\"false\">");
+    outputFile.println("\t\t\t\t\t\t<UML:ClassifierRole xmi.id=\""+id+"\" name=\""+objclase.getNombreTabla()+"\" visibility=\""+objclase.getAcceso()+"\" isSpecification=\"false\" isRoot=\"false\" isLeaf=\"false\" isAbstract=\"false\">");
     outputFile.println("\t\t\t\t\t\t\t<UML:Classifier.feature>");
     addAtributo(objclase);
-    addMetodo(objclase);
     outputFile.println("\t\t\t\t\t\t\t</UML:Classifier.feature>");
     outputFile.println("\t\t\t\t\t\t</UML:ClassifierRole>");
   }
   
-  private void addAtributo(clsClase objclase)
+  private void addAtributo(clsTabla objclase)
   {
-    LinkedList<clsAtributo> atributo = objclase.getAtributos();
+    LinkedList<clsColumna> atributo = objclase.getColumnas();
     int dim = atributo.size();
     for (int i = 0; i < dim; i++)
     {
-      clsAtributo objatributo = atributo.get(i);
+      clsColumna objatributo = atributo.get(i);
       String id = "UMLClassifierRole."+objclase.getId();
       outputFile.println("\t\t\t\t\t\t\t<UML:Attribute xmi.id=\"UMLAttribute.16\" name=\""+objatributo.getNombre()+"\" visibility=\""+objatributo.getAcceso()+"\" isSpecification=\"false\" ownerScope=\"instance\" changeability=\"changeable\" targetScope=\"instance\" type=\""+objatributo.getTipo()+"\" owner=\""+id+"\"/>");
     }
   }
-  
-  private void addMetodo(clsClase objclase)
-  {
-    LinkedList<clsMetodo> metodo = objclase.getMetodos();
-    int dim = metodo.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsMetodo objmetodo = metodo.get(i);
-      String id = "UMLClassifierRole."+objclase.getId();
-      String idm= "UMLOperation."+objclase.getId();
-      if (objmetodo.getParametros().size() > 0)
-      {
-        outputFile.println("\t\t\t\t\t\t\t<UML:Operation xmi.id=\""+idm+"\" name=\""+objmetodo.getNombre()+"\" visibility=\""+objmetodo.getAcceso()+"\" isSpecification=\"false\" ownerScope=\"instance\" isQuery=\"false\" concurrency=\"sequential\" isRoot=\"false\" isLeaf=\"false\" isAbstract=\"false\" specification=\""+objmetodo.getRetorna()+"\" owner=\""+id+"\">");
-        addParametro(idm, objmetodo);
-        outputFile.println("\t\t\t\t\t\t\t</UML:Operation>");
-      }
-      else
-        outputFile.println("\t\t\t\t\t\t\t<UML:Operation xmi.id=\""+idm+"\" name=\""+objmetodo.getNombre()+"\" visibility=\""+objmetodo.getAcceso()+"\" isSpecification=\"false\" ownerScope=\"instance\" isQuery=\"false\" concurrency=\"sequential\" isRoot=\"false\" isLeaf=\"false\" isAbstract=\"false\" specification=\""+objmetodo.getRetorna()+"\" owner=\""+id+"\"/>");
-    }
-  }
-  
-  private void addParametro(String idm, clsMetodo objmetodo)
-  {
-    LinkedList<clsParametro> parametro = objmetodo.getParametros();
-    int s = parametro.size();
-    outputFile.println("\t\t\t\t\t\t\t\t<UML:BehavioralFeature.parameter>");
-    for (int j = 0; j < s; j++)
-    {
-      clsParametro objparametro = parametro.get(j);
-      outputFile.println("\t\t\t\t\t\t\t\t\t<UML:Parameter xmi.id=\"UMLParameter.20\" name=\""+objparametro.getNombre()+"\" visibility=\"public\" isSpecification=\"false\" kind=\"in\" behavioralFeature=\""+idm+"\" type=\""+objparametro.getTipo()+"\"/>");
-    }
-    outputFile.println("\t\t\t\t\t\t\t\t</UML:BehavioralFeature.parameter>");
-  }
-  
+   
   public void definirValoresEnlace()
   {
   }
