@@ -1,12 +1,5 @@
 package Presentacion;
 
-import Archivo.generarCodigo;
-
-import Archivo.guardarXMI;
-//import Archivo.guardarXML;
-//import Archivo.leerXMI;
-//import Archivo.leerXML;
-
 import Negocio.*;
 
 import Comun.*;
@@ -159,6 +152,7 @@ public class formCliente extends JFrame implements interfaceEvento
     miNuevo.setText("Nuevo");
     miNuevo.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
             miNuevo_actionPerformed(e);
@@ -167,6 +161,7 @@ public class formCliente extends JFrame implements interfaceEvento
     miAbrir.setText("Abrir");
     miAbrir.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
             miAbrir_actionPerformed(e);
@@ -175,6 +170,7 @@ public class formCliente extends JFrame implements interfaceEvento
     miGuardar.setText("Guardar");
     miGuardar.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
             miGuardar_actionPerformed(e);
@@ -183,6 +179,7 @@ public class formCliente extends JFrame implements interfaceEvento
     miExportar.setText("Exportar");
     miExportar.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
             miExportar_actionPerformed(e);
@@ -191,6 +188,7 @@ public class formCliente extends JFrame implements interfaceEvento
     miSalir.setText("Salir");
     miSalir.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
             miSalir_actionPerformed(e);
@@ -200,6 +198,7 @@ public class formCliente extends JFrame implements interfaceEvento
     miGenCod.setText("Generar Codigo");
     miGenCod.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
             miGenCod_actionPerformed(e);
@@ -210,6 +209,7 @@ public class formCliente extends JFrame implements interfaceEvento
     miImportar.setText("Importar Clase");
     miImportar.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
             miImportar_actionPerformed(e);
@@ -435,13 +435,13 @@ public class formCliente extends JFrame implements interfaceEvento
       {
         LinkedList<clsTabla> clase = objservidor.getObjds().getTablas();
         int dim = clase.size();
-        generarCodigo objgeneracodigo = new generarCodigo();
+        //generarCodigo objgeneracodigo = new generarCodigo();
         for (int i = 0; i < dim; i++)
         {
             clsTabla objclase = clase.get(i);
-            objgeneracodigo.GeneraCodigo(objclase);
+           // objgeneracodigo.GeneraCodigo(objclase);
             File a = new File(selectfile.getCurrentDirectory()+"\\"+objclase.getNombreTabla()+".java");
-            objgeneracodigo.guardarFile(a);
+           // objgeneracodigo.guardarFile(a);
         }
       }
       catch (Exception ex) 
@@ -479,9 +479,9 @@ public class formCliente extends JFrame implements interfaceEvento
     int result = selectfile.showSaveDialog(this);
     if(result == JFileChooser.APPROVE_OPTION)
     {
-      guardarXMI objguardar = new guardarXMI(objgraficador.getObjcontrol().getObjds());
+     // guardarXMI objguardar = new guardarXMI(objgraficador.getObjcontrol().getObjds());
       File a = new File(selectfile.getSelectedFile().getPath()+".xml");
-      objguardar.exportarXMI(a);
+      //objguardar.exportarXMI(a);
     }
   }
 

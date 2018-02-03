@@ -37,9 +37,6 @@ public class frmTabla extends JDialog
   private JLabel glestereotipo = new JLabel();
   private JComboBox gcbestereotipo = new JComboBox();
   private JPanel gpacceso = new JPanel(null);
-  private JRadioButton grbprivate = new JRadioButton();
-  private JRadioButton grbprotected = new JRadioButton();
-  private JRadioButton grbpublic = new JRadioButton();
   /*private JButton gbaceptar = new JButton();
   private JButton gbcancelar = new JButton();*/
   
@@ -145,34 +142,6 @@ public class frmTabla extends JDialog
     gpacceso.setBounds(new Rectangle(250, 45, 105, 115));
     gpacceso.setBorder(BorderFactory.createTitledBorder("Acceso"));
     
-    grbprivate.setText("private");
-    grbprivate.setBounds(new Rectangle(10, 25, 85, 20));
-    grbprivate.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            grbprivate_mouseClicked(e);
-          }
-        });
-    grbprotected.setText("protected");
-    grbprotected.setBounds(new Rectangle(10, 55, 85, 20));
-    grbprotected.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            grbprotected_mouseClicked(e);
-          }
-        });
-    grbpublic.setText("public");
-    grbpublic.setBounds(new Rectangle(10, 85, 85, 20));
-    grbpublic.setSelected(true);
-    grbpublic.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            grbpublic_mouseClicked(e);
-          }
-        });
     baceptar.setText("Aceptar");
     baceptar.setBounds(new Rectangle(30, 135, 85, 25));
     baceptar.addMouseListener(new MouseAdapter()
@@ -198,9 +167,6 @@ public class frmTabla extends JDialog
     pgeneral.add(gpacceso, null);
     pgeneral.add(bcancelar, null);
     pgeneral.add(baceptar, null);
-    gpacceso.add(grbpublic, null);
-    gpacceso.add(grbprotected, null);
-    gpacceso.add(grbprivate, null);
     
     baceptar  = new JButton();
     bcancelar = new JButton();
@@ -407,13 +373,6 @@ public class frmTabla extends JDialog
   {
     this.setTitle(objclase.getNombreTabla()+" - Propiedades de Tabla");
     gtfnombre.setText(objclase.getNombreTabla());
-    //gcbestereotipo.setSelectedItem(objclase.getClassinterface());
-    if (grbprivate.getText().equals(objclase.getAcceso()))
-      cargarGeneralSelect(true, false, false);
-    if (grbprotected.getText().equals(objclase.getAcceso()))
-      cargarGeneralSelect(false, true, false);
-    if (grbpublic.getText().equals(objclase.getAcceso()))
-      cargarGeneralSelect(false, false, true);
   }
   
   private void cargarAtributo()
@@ -438,14 +397,7 @@ public class frmTabla extends JDialog
     }
     alatributos.setListData(items);
   }
-  
-  private void cargarGeneralSelect(boolean op1, boolean op2, boolean op3)
-  {
-    grbprivate.setSelected(op1);
-    grbprotected.setSelected(op2);
-    grbpublic.setSelected(op3);
-  }
-  
+    
   private void cargarAtributoSelect(boolean op1, boolean op2, boolean op3)
   {
     arbprivate.setSelected(op1);
@@ -463,21 +415,6 @@ public class frmTabla extends JDialog
   private void gtfnombre_keyReleased(KeyEvent e)
   {
     this.setTitle(gtfnombre.getText()+" - Propiedades de una Clase");
-  }
-
-  private void grbprivate_mouseClicked(MouseEvent e)
-  {
-    cargarGeneralSelect(true, false, false);
-  }
-
-  private void grbprotected_mouseClicked(MouseEvent e)
-  {
-    cargarGeneralSelect(false, true, false);
-  }
-
-  private void grbpublic_mouseClicked(MouseEvent e)
-  {
-    cargarGeneralSelect(false, false, true);
   }
 
   private void arbprivate_mouseClicked(MouseEvent e)
@@ -641,13 +578,6 @@ public class frmTabla extends JDialog
   private void baceptar_mousePressed(MouseEvent e)
   {
     objclase.setNombreTabla(gtfnombre.getText());
-    if (grbprivate.isSelected())
-      objclase.setAcceso(grbprivate.getText());
-    if (grbprotected.isSelected())
-      objclase.setAcceso(grbprotected.getText());
-    if (grbpublic.isSelected())
-      objclase.setAcceso(grbpublic.getText());
-    //objclase.setAtributos(atributo);
     objcontrol.enviarActualizarTabla(objclase, true);
     this.setVisible(false);
   }

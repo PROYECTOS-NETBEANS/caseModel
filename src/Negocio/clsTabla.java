@@ -11,39 +11,29 @@ public class clsTabla implements Serializable
 {
   private int id;
   private String nombreTabla;
-  private String acceso;
   private LinkedList<clsColumna> columnas = new LinkedList<clsColumna>();
     
   private Rectangle superior;
-  private Point o, d;
-  private Rectangle inferior;
+
   public clsTabla()
   { 
     id = 0;
-    nombreTabla = acceso = "";
-    o = new Point();
-    d = new Point();
+    nombreTabla = "";
     superior = new Rectangle();
-    inferior = new Rectangle();
   }
   
-  public clsTabla(int id, String nombreTabla, String acceso, Rectangle superior, Rectangle inferior)
+  public clsTabla(int id, String nombreTabla, Rectangle superior)
   {
     this.id             = id;
-    this.acceso         = acceso;
     this.superior       = superior;
-    o = new Point(inferior.x + (inferior.width/2), inferior.y);
-    d = new Point(inferior.x + (inferior.width/2), inferior.y + inferior.height);
   }
   
-  public clsTabla(int id, String classinterface, String nombre, String acceso, LinkedList<clsColumna> columnas, Rectangle superior, Rectangle inferior)
+  public clsTabla(int id, String nombre, LinkedList<clsColumna> columnas, Rectangle superior)
   {
     this.id             = id;
     this.nombreTabla    = nombre;
-    this.acceso         = acceso;
     this.columnas      = columnas;
     this.superior = superior;
-    this.inferior = inferior;
   }
   //  SELECTORES
   public int getId()
@@ -66,16 +56,6 @@ public class clsTabla implements Serializable
     this.nombreTabla = nombre;
   }
 
-  public String getAcceso()
-  {
-    return acceso;
-  }
-
-  public void setAcceso(String acceso)
-  {
-    this.acceso = acceso;
-  }
-
   public LinkedList<clsColumna> getColumnas()
   {
     return this.columnas;
@@ -94,36 +74,6 @@ public class clsTabla implements Serializable
   public void setSuperior(Rectangle superior)
   {
     this.superior = superior;
-  }
-
-  public Rectangle getInferior()
-  {
-    return inferior;
-  }
-
-  public void setInferior(Rectangle inferior)
-  {
-    this.inferior = inferior;
-  }
-  
-  public void setPuntoO(Point o)
-  {
-    this.o = o;
-  }
-  
-  public Point getPuntoO()
-  { 
-    return o;
-  }
-  
-  public void setPuntoD(Point d)
-  {
-    this.d = d;
-  }
-  
-  public Point getPuntoD()
-  {
-    return d;
   }
   //  FIN SELECTORES
   

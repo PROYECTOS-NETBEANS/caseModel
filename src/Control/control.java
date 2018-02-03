@@ -132,7 +132,9 @@ public class control implements MouseListener, MouseMotionListener
     try 
     {
         System.out.println("control.enviarTabla");
-      objservidor.addTabla(objclase, usuario);
+        if(objservidor == null)
+            System.out.println("soy servior nulo");
+        objservidor.addTabla(objclase, usuario);
     }
     catch (RemoteException f)
     { f.printStackTrace();  }
@@ -143,10 +145,10 @@ public class control implements MouseListener, MouseMotionListener
   private void enviarTabla()
   {
     clsTabla objclase = null;
-       //objclase = new clsTabla(0, 2, getModo(), "", "public", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
-        objclase = new clsTabla(0, "", "public", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
-        System.out.println("Control.control.enviarTabla() " + objclase);
-        enviarTabla(objclase);
+    //objclase = new clsTabla(0, 2, getModo(), "", "public", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
+    objclase = new clsTabla(0, "", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
+    System.out.println("Control.control.enviarTabla() " + objclase);
+    enviarTabla(objclase);
   }
   
   private void enviarConector()

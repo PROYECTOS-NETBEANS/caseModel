@@ -181,31 +181,30 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     boolean error = false;
     
     System.out.println("de la paleta insertando...");
+    Utils.verTabla(objclase);
+    
     int id = objds.generarId();
     objclase.setId(id);
     objclase.setNombreTabla(generarNombreTabla());
     objds.addTabla(objclase);
-    clsTabla aux = new clsTabla(id, objclase.getNombreTabla(), objclase.getAcceso(), objclase.getSuperior(), objclase.getInferior());
-    //clase aux = new clase(id, 1, objclase.getClassinterface(), objclase.getNombre(), objclase.getAcceso(), null, null);
-    objds.addTabla(aux);
-    
-    /*if (error)
-      enviarMensajeError(nombre_usuario, objclase.getNombre());
-    else
-    {*/
-      Enumeration sKeys = usuarios.keys();
-      while (sKeys.hasMoreElements()) 
-      {
-        String nombre = (String) sKeys.nextElement();
-        if (nombre.equals(nombre_usuario))
-          enviarClase(nombre_usuario, objclase);
-        else
-          enviarDiagrama(nombre);
-      }
-    //}
+    Utils.verTabla(objclase);
+    //clsTabla aux = new clsTabla(id, objclase.getNombreTabla(), objclase.getAcceso(), objclase.getSuperior(), objclase.getInferior());
+    System.out.println("qqqqqqqqqqqq...");
+    //objds.addTabla(aux);
+    System.out.println("88888...");    
+
+    Enumeration sKeys = usuarios.keys();
+    while (sKeys.hasMoreElements()) 
+    {
+      String nombre = (String) sKeys.nextElement();
+      if (nombre.equals(nombre_usuario))
+        enviarTabla(nombre_usuario, objclase);
+      else
+        enviarDiagrama(nombre);
+    }
   }
   
-  public void enviarClase(String nombre_usuario, clsTabla objclase)
+  public void enviarTabla(String nombre_usuario, clsTabla objclase)
   {
     interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
     try{ 
@@ -253,7 +252,7 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
       //System.out.println("Metodo actualizarClase => tipo="+aux2.getTipo());
       if (objclase.getId() == aux2.getId())
       {
-        actualizarTabla(aux2, objclase.getNombreTabla(), objclase.getAcceso(), objclase.getColumnas(), objclase.getSuperior(), objclase.getInferior(), objclase.getPuntoO(), objclase.getPuntoD());
+        actualizarTabla(aux2, objclase.getNombreTabla(), objclase.getColumnas(), objclase.getSuperior(), objclase.getInferior(), objclase.getPuntoO(), objclase.getPuntoD());
         aux1 = aux2;
         actualizarRelacion(aux2.getId(), aux2.getPuntoO(), aux2.getPuntoD());
       }
@@ -263,16 +262,15 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     {
       String nombre = (String) sKeys.nextElement();
       if (nombre.equals(nombre_usuario))
-        enviarClase(nombre, aux1);
+        enviarTabla(nombre, aux1);
       else
         enviarDiagrama(nombre);
     }
   }
   
-  public void actualizarTabla(clsTabla obj, String nombre, String acceso, LinkedList<clsColumna>a, Rectangle s, Rectangle i, Point o, Point d)
+  public void actualizarTabla(clsTabla obj, String nombre, LinkedList<clsColumna>a, Rectangle s, Rectangle i, Point o, Point d)
   {
     obj.setNombreTabla(nombre);
-    obj.setAcceso(acceso);
     //  actualiza la lista de atributos, si existe el mismo atributo no se añade
     /*generarCodigo objcodigo = new generarCodigo();
     int dim = a.size();
@@ -461,7 +459,6 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     }
   }
   
-  @Override
   public void delColumna(int id, String nombre_atributo) throws RemoteException
   {
     LinkedList<clsTabla> clase = objds.getTablas();
