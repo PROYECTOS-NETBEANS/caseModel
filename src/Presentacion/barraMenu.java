@@ -197,8 +197,7 @@ public class barraMenu extends JPanel implements MouseListener, MouseMotionListe
         {
           Rectangle s = objTabla.getSuperior();
           s.setLocation(0, 0);
-          Rectangle i = objTabla.getInferior();
-          clsTabla aux = new clsTabla(0, "", s, new Rectangle(s.x+(s.width/2)-5, s.y+s.height, 10, i.height));
+          clsTabla aux = new clsTabla(0, "", new Rectangle(s.x+(s.width/2)-5, s.y+s.height, 10, 25));
           aux.setColumnas(objTabla.getColumnas());
           objcontrol.enviarTabla(aux);
         }
@@ -212,10 +211,6 @@ public class barraMenu extends JPanel implements MouseListener, MouseMotionListe
         if (objenlace != null)
           objcontrol.eliminarEnlace(objTabla.getId());
       }
-      /*if (obj.getName().equals("Fuente"))
-        form.guardarFile();
-      if (obj.getName().equals("Color"))
-        form.exportarXMI();*/
     }
   }
   

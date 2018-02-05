@@ -24,14 +24,10 @@ public interface interfaceServidor extends Remote
   public void importarDiagrama(String nombre_usuario, clsDiagrama aux) throws RemoteException;
   
   public void actualizarDiagrama(String nombre_usuario) throws RemoteException;
-  
-  //public void actualizarDiagramaSecuencia(diagramaSecuencia aux) throws RemoteException;
-  
+    
   public clsDiagrama getObjds() throws RemoteException;
   
-  //public void setObjds(diagramaSecuencia objds) throws RemoteException;
-  
-  public Object getFigura() throws RemoteException;
+  //public Object getFigura() throws RemoteException;
     
   public void addTabla(clsTabla objclase, String nombre_usuario) throws RemoteException;
     

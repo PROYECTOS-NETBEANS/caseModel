@@ -1,47 +1,54 @@
 package Negocio;
 
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 
 import java.io.Serializable;
 
 public class clsRelacion implements Serializable
 {
-  //private 
   private int id;
-  private int origen;       //  SI ES UN ACTOR O UNA CLASE (id)
-  private int destino;      //  ES UNA CLASE (id)
   
-  private Rectangle enlace;
-  private Point o, d;
+  private int origen;
+  private String col_nombre_origen;
+  private String cardinalidad_origen;
+  private Point d;
+  
+  private int destino;
+  private String col_nombre_destino;
+  private String cardinalidad_destino;
+  private Point o;
 
+  private Polygon poligono;
+  
   public clsRelacion()
   {
-    id = origen = destino = 0;    
-    enlace = new Rectangle();
-    o = new Point();
-    d = new Point();
+    id = origen = destino = 0;
+    o = null;
+    d = null;
   }
   
-  public clsRelacion(int id, int origen, int destino, Point o, Point d)
+  public clsRelacion(int id, int origen, int destino, Point o, Point d, String col_origen, String col_destino, String card_origen, String card_destino)
   {
-    this.id         = id;
-    this.origen     = origen;
-    this.destino    = destino;
-    //this.enlace     = enlace;
-    /*o = new Point(this.enlace.x, this.enlace.y + (this.enlace.height/2));
-    d = new Point(this.enlace.x + this.enlace.width, this.enlace.y + (this.enlace.height/2));
-    if (this.enlace.width < 0)
-      this.enlace = new Rectangle(d.x, this.enlace.y, Math.abs(this.enlace.width), 8);*/
-    this.o = o;
-    this.d = d;
-    if (o.x < d.x)
-      enlace = new Rectangle(o.x, o.y-5, d.x-o.x, 10);
-    else
-      enlace = new Rectangle(d.x, o.y-5, o.x-d.x, 10);
-  }
+    this.id                     = id;
 
-  //  SELECTORES
+    this.origen                 = origen;
+    this.o                      = o;
+    this.cardinalidad_origen    = card_origen;
+    this.col_nombre_origen      = col_origen;
+    
+    this.destino                = destino;
+    this.d                      = d;
+    this.cardinalidad_destino   = card_destino;
+    this.col_nombre_destino     = col_destino;
+    
+    calcularPoligono();
+  }
+  
+  public Polygon getPoligono(){
+      return this.poligono;
+  }
   public int getId()
   {
     return id;
@@ -71,20 +78,11 @@ public class clsRelacion implements Serializable
   {
     this.destino = destino;
   }
-
-  public Rectangle getEnlace()
-  {
-    return enlace;
-  }
-
-  public void setEnlace(Rectangle enlace)
-  {
-    this.enlace = enlace;
-  }
   
   public void setPuntoO(Point o)
   {
     this.o = o;
+    this.calcularPoligono();
   }
   
   public Point getPuntoO()
@@ -92,9 +90,19 @@ public class clsRelacion implements Serializable
     return o;
   }
   
-  public void setPuntoD(Point d)
-  {
+  public void setPuntoD(Point d){
     this.d = d;
+    this.calcularPoligono();
+  }
+  private void calcularPoligono(){
+      poligono = new Polygon();
+      // es del origen
+      poligono.addPoint(o.x-2, o.y-2); 
+      poligono.addPoint(o.x+2, o.y+2);
+      
+      // es del destino
+      poligono.addPoint(d.x+2, d.y+2);
+      poligono.addPoint(d.x-2, d.y-2);
   }
   
   public Point getPuntoD()
@@ -102,9 +110,42 @@ public class clsRelacion implements Serializable
     return d;
   }
   //  FIN SELECTORES
+
+    public String getCol_nombre_origen() {
+        return col_nombre_origen;
+    }
+
+    public void setCol_nombre_origen(String col_nombre_origen) {
+        this.col_nombre_origen = col_nombre_origen;
+    }
+
+    public String getCardinalidad_origen() {
+        return cardinalidad_origen;
+    }
+
+    public void setCardinalidad_origen(String cardinalidad_origen) {
+        this.cardinalidad_origen = cardinalidad_origen;
+    }
+
+    public String getCol_nombre_destino() {
+        return col_nombre_destino;
+    }
+
+    public void setCol_nombre_destino(String col_nombre_destino) {
+        this.col_nombre_destino = col_nombre_destino;
+    }
+
+    public String getCardinalidad_destino() {
+        return cardinalidad_destino;
+    }
+
+    public void setCardinalidad_destino(String cardinalidad_destino) {
+        this.cardinalidad_destino = cardinalidad_destino;
+    }
   
+  @Override
   public String toString()
   {
-    return "id="+id+", origen="+origen+", destino="+destino+", rectangle="+enlace+", o="+o+", d="+d;
+    return "id="+id+", origen="+origen+", destino="+destino+", o="+o+", d="+d;
   }
 }

@@ -6,9 +6,9 @@ import java.util.Vector;
 
 public class clsDiagrama implements Serializable
 {
-  private LinkedList<clsTabla> tablas       = new LinkedList<clsTabla>();
-  private LinkedList<clsRelacion> relaciones = new LinkedList<clsRelacion>();
-  private Vector<String>  ids           = new Vector<String>();
+  private LinkedList<clsTabla> tablas           = new LinkedList<clsTabla>();
+  private LinkedList<clsRelacion> relaciones    = new LinkedList<clsRelacion>();
+  private Vector<String>  ids                   = new Vector<String>();
   
   public clsDiagrama()
   {}

@@ -5,49 +5,45 @@ import Negocio.*;
 import java.awt.Point;
 
 import java.awt.Rectangle;
+import java.rmi.AccessException;
+import java.rmi.AlreadyBoundException;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-//import java.rmi.registry.Registry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 import java.util.*;
-import javax.swing.JList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class implementacionServidor extends UnicastRemoteObject implements interfaceServidor
 {
-  //private int puerto  = 1099;
   public Registry registro;
-  private int puerto  = 3333;
-  private String ip = "127.0.0.1";
-  private String name = "DIAGRAMA_SECUENCIA";
-  private transient Hashtable usuarios = new Hashtable();
-  private Vector nombre_clase = new Vector();
-  private Vector nombre_actor = new Vector();
+  private final transient Hashtable usuarios = new Hashtable();
+  private final Vector nombre_clase = new Vector();
   
   
-  private clsDiagrama objds = null;//, importar = null;
-  private Object figura = null;
+  private clsDiagrama objds = null;
   
-  private JList listUsuario;
-  
-  public implementacionServidor() throws RemoteException
-  { super();  }
+  public implementacionServidor() throws RemoteException{ 
+      super();
+  }
   
   public void iniciarServidor()
   {
     try 
     {
-      registro = LocateRegistry.createRegistry(puerto);
-      registro.rebind(name, this);
-      /*LocateRegistry.createRegistry(puerto);
-      Naming.rebind(name, this);*/
+      registro = LocateRegistry.createRegistry(Constantes.PORT);
+      registro.bind(Constantes.NAME, this);
       System.out.println("============== Servidor Iniciado ==============");
       objds = new clsDiagrama();
     }
-    catch (Exception ex) 
-    { ex.printStackTrace(); }
+    catch (RemoteException ex){
+        ex.printStackTrace(); 
+    }catch (AlreadyBoundException ex){
+        Logger.getLogger(implementacionServidor.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
   
   @Override
@@ -210,35 +206,39 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     try{ 
         objcliente.enviarTabla(objds, objclase);  
     }
-    catch (Exception ex) 
+    catch (RemoteException ex) 
     { ex.printStackTrace(); }
   }
   
-  public void enviarConector(String nombre_usuario, clsRelacion objconector)
-  {
-    interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
-    try 
-    { objcliente.enviarRelacion(objds, objconector);  }
-    catch (Exception ex) 
-    { ex.printStackTrace(); }
-  }
-  
-  @Override
-  public void addRelacion(clsRelacion objconector, String nombre_usuario) throws RemoteException
-  {
-    objconector.setId(objds.generarId());
-    objds.addRelacion(objconector);
-    
-    Enumeration sKeys = usuarios.keys();
-    while (sKeys.hasMoreElements())
+    public void enviarConector(String nombre_usuario, clsRelacion objconector)
     {
-      String nombre = (String) sKeys.nextElement();
-      if (nombre.equals(nombre_usuario))
-        enviarConector(nombre_usuario, objconector);
-      else
-        enviarDiagrama(nombre);
+        interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
+        try {
+            System.out.println("enviando relacion al cliente");
+            objcliente.enviarRelacion(objds, objconector);
+        }
+        catch (RemoteException ex){ 
+            ex.printStackTrace(); 
+        }
     }
-  }
+  
+    @Override
+    public void addRelacion(clsRelacion objconector, String nombre_usuario) throws RemoteException
+    {
+        System.out.println("llegue relacion del cliente col_org : " + objconector.getCol_nombre_origen());
+        objconector.setId(objds.generarId());
+        objds.addRelacion(objconector);
+
+        Enumeration sKeys = usuarios.keys();
+        while (sKeys.hasMoreElements())
+        {
+          String nombre = (String) sKeys.nextElement();
+          if (nombre.equals(nombre_usuario))
+            enviarConector(nombre_usuario, objconector);
+          else
+            enviarDiagrama(nombre);
+        }
+    }
     
   @Override
   public void actualizarTabla(String nombre_usuario, clsTabla objclase) throws RemoteException
@@ -252,9 +252,10 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
       //System.out.println("Metodo actualizarClase => tipo="+aux2.getTipo());
       if (objclase.getId() == aux2.getId())
       {
-        actualizarTabla(aux2, objclase.getNombreTabla(), objclase.getColumnas(), objclase.getSuperior(), objclase.getInferior(), objclase.getPuntoO(), objclase.getPuntoD());
+        actualizarTabla(aux2, objclase.getNombreTabla(), objclase.getColumnas(), objclase.getSuperior());
         aux1 = aux2;
-        actualizarRelacion(aux2.getId(), aux2.getPuntoO(), aux2.getPuntoD());
+        // tengo que actualizar los puntos de la relacion
+        actualizarRelacion(aux1.getId(), aux1.getSuperior());
       }
     }
     Enumeration sKeys = usuarios.keys();
@@ -268,85 +269,81 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     }
   }
   
-  public void actualizarTabla(clsTabla obj, String nombre, LinkedList<clsColumna>a, Rectangle s, Rectangle i, Point o, Point d)
+  public void actualizarTabla(clsTabla obj, String nombre, LinkedList<clsColumna>a, Rectangle s)
   {
     obj.setNombreTabla(nombre);
-    //  actualiza la lista de atributos, si existe el mismo atributo no se añade
-    /*generarCodigo objcodigo = new generarCodigo();
-    int dim = a.size();
-    for (int index = 0; index < dim; index++)
-    {
-      atributos obja = a.get(index);
-      sd
-    }*/
-        
-    //  actualiza la lista de metodos, si existe el mismo metodo no se añade
-    
     obj.setSuperior(s);
-    obj.setInferior(i);
-    obj.setPuntoO(o);
-    obj.setPuntoD(d);
   }
   
-  private void actualizarRelacion(int id, Point po, Point pd)
-  {
-    LinkedList<clsRelacion> conector = objds.getRelacion();
-    int dim = conector.size();
-    for (int i = 0; i < dim; i++)
+    private void actualizarRelacion(int idTabla, Rectangle rec)
     {
-      clsRelacion aux = conector.get(i);
-      if (id == aux.getOrigen())// || objclase.getId() == aux.getDestino())
-      {
-        objds.delRelacion(i);
-        Point poco = aux.getPuntoO();
-        Point pdco = aux.getPuntoD();
-        clsRelacion objconector;
-        objconector = new clsRelacion(aux.getId(), aux.getOrigen(), aux.getDestino(), new Point(po.x, poco.y), new Point(pdco.x, poco.y));
-        objds.addRelacion(objconector);
-      }
-      else
-      {
-        if (id == aux.getDestino())
-        {
-          Point poco = aux.getPuntoO();
-          //Point pdco = aux.getPuntoD();
-          objds.delRelacion(i);
-          clsRelacion objconector = new clsRelacion(aux.getId(), aux.getOrigen(), aux.getDestino(), new Point(poco.x, poco.y), new Point(pd.x, poco.y));
-          objds.addRelacion(objconector);
+
+        LinkedList<clsRelacion> relaciones = objds.getRelacion();
+        
+        for (int i = 0; i < relaciones.size(); i++){            
+            clsRelacion rel = relaciones.get(i);
+            
+            if (idTabla == rel.getOrigen())
+            {
+                int newoX = rec.getLocation().x + (((int) rec.getWidth()/2));
+                int newoY = rec.getLocation().y + (((int) rec.getHeight()/2));
+                Point o = new Point(newoX, newoY);
+                
+                rel.setPuntoO(o);
+                clsRelacion newr = new clsRelacion(rel.getId(), rel.getOrigen(), rel.getDestino(), rel.getPuntoO(), rel.getPuntoD(), 
+                                    rel.getCol_nombre_origen(), rel.getCol_nombre_destino(), rel.getCardinalidad_origen(), rel.getCardinalidad_destino());
+                objds.delRelacion(i);
+                objds.addRelacion(newr);
+            }
+            else
+            {
+              if (idTabla == rel.getDestino())
+              {
+                int newdX = rec.getLocation().x + (((int) rec.getWidth()/2));
+                int newdY = rec.getLocation().y + (((int) rec.getHeight()/2));
+                Point d = new Point(newdX, newdY);
+
+                rel.setPuntoD(d);
+                clsRelacion newr = new clsRelacion(rel.getId(), rel.getOrigen(), rel.getDestino(), rel.getPuntoO(), rel.getPuntoD(), 
+                                    rel.getCol_nombre_origen(), rel.getCol_nombre_destino(), rel.getCardinalidad_origen(), rel.getCardinalidad_destino());                
+                objds.delRelacion(i);
+                objds.addRelacion(newr);
+              }
+            }
         }
-      }
     }
-  }
-  
-  public void actualizarRelacion(String nombre_usuario, clsRelacion objconector) throws RemoteException
-  {
-    LinkedList<clsRelacion> conector = objds.getRelacion();
-    int dim = conector.size();
-    clsRelacion aux = null;
-    for (int i = 0; i < dim; i++)
+
+    /**
+     * metodo que llega desde el cliente para actualizar la relacion del servidor
+     * @param nombre_usuario
+     * @param objconector
+     * @throws RemoteException 
+     */
+    @Override
+    public void actualizarRelacion(String nombre_usuario, clsRelacion objconector) throws RemoteException
     {
-      aux = conector.get(i);
-      //  if (objconector.getOrigen() == aux.getId() || objconector.getDestino() == aux.getId())
-      if (objconector.getId() == aux.getId())
-      {
-        objds.delRelacion(i);
-        objds.addRelacion(objconector);
-        aux = objconector;
-        break;
-      }
+        LinkedList<clsRelacion> conector = objds.getRelacion();
+        int dim = conector.size();
+        clsRelacion aux = null;
+        for (int i = 0; i < dim; i++){
+            aux = conector.get(i);
+            if (objconector.getId() == aux.getId()){
+                objds.delRelacion(i);
+                objds.addRelacion(objconector);
+                aux = objconector;
+                break;
+            }
+        }
+        Enumeration sKeys = usuarios.keys();
+        while (sKeys.hasMoreElements()){
+            String nombre = (String) sKeys.nextElement();
+            if (nombre.equals(nombre_usuario))
+                enviarConector(nombre, aux);
+            else
+                enviarDiagrama(nombre);
+        }
     }
-    Enumeration sKeys = usuarios.keys();
-    while (sKeys.hasMoreElements()) 
-    {
-      String nombre = (String) sKeys.nextElement();
-      if (nombre.equals(nombre_usuario))
-        enviarConector(nombre, aux);
-      else
-        enviarDiagrama(nombre);
-    }
-  }
-  
-  
+  @Override
   public clsTabla verificarTabla(Point p) throws RemoteException
   {
     LinkedList<clsTabla> clase = objds.getTablas();
@@ -354,12 +351,13 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     for (int i = 0; i < dim; i++)
     {
         clsTabla objclase = clase.get(i);
-        if (objclase.getSuperior().contains(p) || objclase.getInferior().contains(p))
+        if (objclase.getSuperior().contains(p))
             return objclase;      
     }
     return null;
   }
   
+  @Override
   public clsRelacion verificarRelacion(Point p) throws RemoteException
   {
     LinkedList<clsRelacion> conector = objds.getRelacion();
@@ -367,7 +365,7 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     for (int i = 0; i < dim; i++)
     {
       clsRelacion objconector = conector.get(i);
-      if (objconector.getEnlace().contains(p))
+      if (objconector.getPoligono().contains(p))
         return objconector;
     }
     return null;
@@ -382,7 +380,7 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     while (userKeys.hasMoreElements())
     { usuarios.add(userKeys.nextElement()); }
     
-    listUsuario.setListData(usuarios);
+    System.out.println("usuarios aqui llegan los nuevos");
     try
     {
       Enumeration sKeys = this.usuarios.keys();
@@ -410,35 +408,28 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     }
     catch (Exception e)
     { e.printStackTrace();  }
-  }
-  
-  public void setJList(JList listUsuario)
-  {
-    this.listUsuario = listUsuario;
-  }
-  
+  }  
+  @Override
   public clsDiagrama getObjds() throws RemoteException
   { return objds; }
   
   public void setObjds(clsDiagrama objds) throws RemoteException
   { this.objds = objds; }
-
-  public Object getFigura() throws RemoteException
-  { return figura;  }
    
   public String generarNombreTabla()
   {
-    String nombre = "Object";
+    String nombre = "Tabla";
     int id = 1;
     while (nombre_clase.contains(nombre+id))
       id++;
-    nombre_clase.add(nombre+id);
-    return nombre+id;
+    nombre_clase.add(nombre + Integer.toString(id));
+    return nombre + Integer.toString(id);
   }
   
   //********************** PROPIEDADES *******************
+  @Override
   public void addColumna(int id, clsColumna objatributo)  throws RemoteException
-  {
+  {    
     LinkedList<clsTabla> clase = objds.getTablas();
     int dim = clase.size();
     clsTabla aux1 = null;
@@ -455,10 +446,12 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     while (sKeys.hasMoreElements()) 
     {
       String nombre = (String) sKeys.nextElement();
+      System.out.println("llego columna y se envia la columna");
       enviarColumna(nombre, aux1);
     }
   }
   
+  @Override
   public void delColumna(int id, String nombre_atributo) throws RemoteException
   {
     LinkedList<clsTabla> clase = objds.getTablas();
@@ -481,12 +474,12 @@ public class implementacionServidor extends UnicastRemoteObject implements inter
     }
   }
   
-  public void enviarColumna(String nombre_usuario, clsTabla objclase)
+  public void enviarColumna(String nombre_usuario, clsTabla objtabla)
   {
     interfaceCliente objcliente = (interfaceCliente) usuarios.get(nombre_usuario);
     try 
     { 
-        objcliente.enviarColumna(objds, objclase); 
+        objcliente.enviarColumna(objds, objtabla); 
     }
     catch (Exception ex) 
     { ex.printStackTrace(); }

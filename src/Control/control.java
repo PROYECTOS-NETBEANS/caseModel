@@ -1,5 +1,6 @@
 package Control;
 
+import Comun.Constantes;
 import Presentacion.formCliente;
 
 import Comun.interfaceServidor;
@@ -16,32 +17,25 @@ public class control implements MouseListener, MouseMotionListener
   private static final String PUNTERO  = "Puntero";
   private static final String CONECTOR = "Relacion";
   private static final String TABLA    = "Tabla";
-  /*private static final String FUENTE   = "Fuente";
-  private static final String COLOR    = "Color";*/
   
   private String usuario  = "";
-  private String modo     = "Puntero";   //  modo => del 0..8  (puntero, conector, actor, interfaz, proceso, entidad, fuente, color)
+  private String modo     = "Puntero";
   private clsDiagrama objds;
-  //private Object figura = null;      //  figura => si el objecto es selecionado(actor, clase, conector)*/
   
   public clsTabla objTabla = null;
   public clsRelacion objconector = null;
-  
-  private Point p, o = null, d = null;
-  private Point dif1, dif2, dif3, dif4, pm;
-  private Rectangle fs, fi;
-  private Point po, pd;
-  private boolean esfigura = false;
+   
   private int click = 1;
-  private clsTabla origen_c, destino_c = null;
 
   private interfaceServidor objservidor;
-  private graficadorDiagSec objgraficador;
-  private formCliente objcliente;
+  private lienzo objgraficador;
+  
+  private formCliente frmClient;
   
   public frmTabla form2;
+  public frmRelacion formRel;
   
-  public control(interfaceServidor objservidor, graficadorDiagSec objgraficador)
+  public control(interfaceServidor objservidor, lienzo objgraficador)
   {
     this.objservidor    = objservidor;
     this.objgraficador  = objgraficador;
@@ -65,6 +59,11 @@ public class control implements MouseListener, MouseMotionListener
   public void setModo(String modo)
   {
     this.modo = modo;
+    if(this.modo.equals(Constantes.RELACION)){
+        formRel = new frmRelacion(frmClient, "Relacion", true);
+        formRel.cargarRelacion(this, new clsRelacion(), true);
+        formRel.setVisible(true);
+    }        
   }
   
   public clsDiagrama getObjds()
@@ -76,20 +75,10 @@ public class control implements MouseListener, MouseMotionListener
   {
     this.objds = objds;
   }
-
-  /*public Object getFigura()
-  {
-    return figura;
-  }
-
-  public void setFigura(Object figura)
-  {
-    this.figura = figura;
-  }*/
   
   public void setFormCliente(formCliente objcliente)
   {
-    this.objcliente = objcliente;
+    this.frmClient = objcliente;
   }
   
   public interfaceServidor getObjservidor()
@@ -102,27 +91,27 @@ public class control implements MouseListener, MouseMotionListener
     this.objservidor = objservidor;
   }
   
-  public boolean verificarTabla()
+  public boolean verificarTabla(Point pto)
   {
     try 
     {
 
-      objTabla = objservidor.verificarTabla(p);
+      objTabla = objservidor.verificarTabla(pto);
       objconector = null;
     }
-    catch (Exception ex) 
+    catch (RemoteException ex) 
     { ex.printStackTrace(); }
     return objTabla != null;
   }
   
-  public boolean verificarConector()
+  public boolean verificarRelacion(Point p)
   {
     try 
     {
       objTabla = null;
       objconector = objservidor.verificarRelacion(p);
     }
-    catch (Exception ex) 
+    catch (RemoteException ex) 
     { ex.printStackTrace(); }
     return objconector != null;
   }
@@ -139,68 +128,26 @@ public class control implements MouseListener, MouseMotionListener
     catch (RemoteException f)
     { f.printStackTrace();  }
     modo = PUNTERO;
-    esfigura = true;
   }
   
-  private void enviarTabla()
+  private void enviarTabla(Point pto)
   {
-    clsTabla objclase = null;
-    //objclase = new clsTabla(0, 2, getModo(), "", "public", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
-    objclase = new clsTabla(0, "", new Rectangle(p.x, p.y, 70, 70), new Rectangle(p.x+30, p.y+70, 10, 300));
+    clsTabla objclase = null;   
+    objclase = new clsTabla(0, "", new Rectangle(pto.x, pto.y, 70, 70));
     System.out.println("Control.control.enviarTabla() " + objclase);
     enviarTabla(objclase);
   }
-  
-  private void enviarConector()
+ 
+  public void addRelacion(clsRelacion relacion)
   {
-      /* ESTO SE BLOQUEO  POR FALT A DE HACER LIMBERT
-    //clase destino = (clase) this.destino;    
-    clsRelacion objconector;
-    int idorigen = 0, iddestino = 0;
-    //metodos objmetodo = new metodos();
-    Point po = null, pd = null;
-    if (origen_a != null)
-    {
-      //ro = new Rectangle(origen_a.getInferior());
-      po = new Point(origen_a.getPuntoO());
-      idorigen = origen_a.getId();
-    }
-    if (destino_a != null)
-    {
-      //rd = new Rectangle(destino_a.getInferior());
-      pd = new Point(destino_a.getPuntoD());
-      iddestino = destino_a.getId();
-    }
-    if (origen_c != null)
-    {
-      //ro = new Rectangle(origen_c.getInferior());
-      po = new Point(origen_c.getPuntoO());
-      idorigen = origen_c.getId();
-      
-    }
-    if (destino_c != null)
-    {
-      pd = new Point(destino_c.getPuntoD());
-      iddestino = destino_c.getId();
-    }
-    //objconector = new conector(0, idorigen, iddestino, new metodos(), new Rectangle(po.x, o.y, rd.x-ro.x, 8));
-    try
-    {
-      objconector = new clsEnlace(0, idorigen, iddestino, new clsMetodo(), new Point(po.x, o.y), new Point(pd.x, o.y));
-      objservidor.addConector(objconector, usuario);
-    }
-    catch (RemoteException f) 
-    { f.printStackTrace();  }
-    modo = PUNTERO;
-    esfigura = true;
-      */
-  }
-    
-  public void addRelacion(clsRelacion objconector)
-  {
-    objds.addRelacion(objconector);
-    objds.addIds(""+objconector.getId());
-    modo = PUNTERO;
+    try {
+      objds.addRelacion(relacion);
+      objds.addIds(""+relacion.getId());
+      modo = PUNTERO;
+      objservidor.addRelacion(relacion, usuario);
+    } catch (RemoteException e) {
+        System.out.println("Error en control.addRelacion al enviar al servidor" + e.getMessage());
+    }    
   }
   
   public void actualizarCoordenadasDiagramaSecuenciaTodos()
@@ -211,21 +158,15 @@ public class control implements MouseListener, MouseMotionListener
     { f.printStackTrace();  }*/
   }
     
-  private void enviarCoordenadaTabla(Point dif1, Point dif2, Point dif3, Point dif4, Point pm, clsTabla objclase)
+  private void enviarCoordenadaTabla(Point pto, clsTabla objclase)
   {
-    //System.out.println("ENVIAR CORD CLASE => "+objclase);
+    System.out.println("ENVIAR CORD CLASE => "+objclase);
     Rectangle fs = objclase.getSuperior();
-    fs.setLocation(pm.x - dif1.x, pm.y - dif1.y);
-    Rectangle fi = objclase.getInferior();
-    fi.setLocation(pm.x - dif2.x, pm.y - dif2.y);
-    Point o = objclase.getPuntoO();
-    Point d = objclase.getPuntoD();
-    o.setLocation(pm.x - dif3.x, pm.y - dif3.y);
-    d.setLocation(pm.x - dif4.x, pm.y - dif4.y);
-    enviarActualizarTabla(objclase, false);
+    fs.setLocation(pto);
+    enviarActualizarTabla(objclase);
   }
   
-  public void enviarActualizarTabla(clsTabla objclase, boolean updatearbol)
+  public void enviarActualizarTabla(clsTabla objclase)
   {
     try{ 
         objservidor.actualizarTabla(usuario, objclase); 
@@ -234,57 +175,16 @@ public class control implements MouseListener, MouseMotionListener
     { f.printStackTrace();  }
   }
   
-  private void enviarCoordenadaRelacion(Point dif1, Point dif2, Point dif3, Point pm, clsRelacion objconector)
-  {
-    Rectangle fs = objconector.getEnlace();
-    fs.setLocation(fs.x, pm.y - dif1.y);
-    Point o = objconector.getPuntoO();
-    Point d = objconector.getPuntoD();
-    //o.setLocation(pm.x - dif3.x, pm.y - dif3.y);
-    //d.setLocation(pm.x - dif4.x, pm.y - dif4.y);
-    o.setLocation(o.x, pm.y - dif2.y);
-    d.setLocation(d.x, pm.y - dif3.y);
-    enviarActualizarRelacion(objconector);
-  }
-  
   public void enviarActualizarRelacion(clsRelacion objconector)
   {
-    try 
-    { objservidor.actualizarRelacion(usuario, objconector);  }
-    catch (RemoteException f) 
-    { f.printStackTrace();  }
-  }
-    
-  private void actualizarRelacion(int id, Point po, Point pd)
-  {
-    LinkedList<clsRelacion> conector = objds.getRelacion();
-    int dim = conector.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsRelacion aux = conector.get(i);
-      if (id == aux.getOrigen())// || objclase.getId() == aux.getDestino())
-      {
-        objds.delRelacion(i);
-        Point poco = aux.getPuntoO();
-        Point pdco = aux.getPuntoD();
-        clsRelacion objconector;
-        objconector = new clsRelacion(aux.getId(), aux.getOrigen(), aux.getDestino(), new Point(po.x, poco.y), new Point(pdco.x, poco.y));
-        objds.addRelacion(objconector);
-      }
-      else
-      {
-        if (id == aux.getDestino())
-        {
-          Point poco = aux.getPuntoO();
-          //Point pdco = aux.getPuntoD();
-          objds.delRelacion(i);
-          clsRelacion objconector = new clsRelacion(aux.getId(), aux.getOrigen(), aux.getDestino(), new Point(poco.x, poco.y), new Point(pd.x, poco.y));
-          objds.addRelacion(objconector);
-        }
-      }
+    try{ 
+        objservidor.actualizarRelacion(usuario, objconector);  
+    }
+    catch (RemoteException f){ 
+        f.printStackTrace();  
     }
   }
-  
+    
   public void actualizarTabla(clsTabla objclase)
   {
     LinkedList<clsTabla> clase = objds.getTablas();
@@ -294,10 +194,10 @@ public class control implements MouseListener, MouseMotionListener
       clsTabla aux = clase.get(i);
       if (objclase.getId() == aux.getId())
       {
-        objds.delRelacion(i);
+        System.out.println("control.actualizarTabla");
+        //objds.delRelacion(i);
         objds.addTabla(objclase);
-        //arbol.actualizarArbolClase(objclase);
-        actualizarRelacion(objclase.getId(), objclase.getPuntoO(), objclase.getPuntoD());
+        //actualizarRelacion(objclase.getId(), "");
         break;
       }
     }
@@ -314,193 +214,76 @@ public class control implements MouseListener, MouseMotionListener
       if (objconector.getId() == aux.getId())
       {
         objds.delRelacion(i);
-        objds.addRelacion(objconector);
+        objds.addRelacion(objconector);         
         break;
       }
     }
   }
-  
-  private boolean verificar(Point p)    //  ESTE FALTA PARA EL SERVIDOR
-  {
-    System.out.println("control.verificar !!! deshabilitado! x limbert");
-   /*
-    LinkedList<clsTabla> tabla = objds.getTablas();
-    int dim = tabla.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsActor objactor = tabla.get(i);
-      Rectangle fig = objactor.getInferior();
-      if (fig.contains(p))
-      {
-        if (click == 1)
-          origen_c = objactor;
-        else
-          destino_c = objactor;
-        return true;
-      }
-    }
-  
-    LinkedList<clsTabla> clase = objds.getClase();
-    dim = clase.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsTabla objclase = clase.get(i);
-      if (objclase.getTipo() == 2)
-      {
-        Rectangle fig = objclase.getInferior();
-        if (fig.contains(p))
-        {
-          if (click == 1)
-            origen_c = objclase;
-          else
-            destino_c = objclase;
-          return true;
-        }
-      }
-    }
-    return false;
-   */
-   return false;
-  }
-  
-  
-  private clsTabla obtenerTabla(int iddestino)
-  {
-    LinkedList<clsTabla> tablas = objds.getTablas();
-    int dim = tablas.size();
-    for (int i = 0; i < dim; i++)
-    {
-      clsTabla objclase = tablas.get(i);
-      if (objclase.getId() == iddestino)
-        return objclase;
-    }
-    return null;
-  }
-  
   //******************* EVENTOS DEL MOUSE ****************************
+  @Override
   public void mousePressed(MouseEvent e)
   {
-    //figura = null;
-    p = e.getPoint();
+    
     if (modo.equals(PUNTERO))
     {
-        esfigura = verificarTabla();
-        if (esfigura)
+        if (verificarTabla(e.getPoint()))
         {
-          fs = objTabla.getSuperior();
-          fi = objTabla.getInferior();
-          po = objTabla.getPuntoO();
-          pd = objTabla.getPuntoD();
-          dif1 = new Point(p.x - fs.x, p.y - fs.y);
-          dif2 = new Point(p.x - fi.x, p.y - fi.y);
-          dif3 = new Point(p.x - po.x, p.y - po.y);
-          dif4 = new Point(p.x - pd.x, p.y - pd.y);
-          //System.out.println("SOY OBJECTO, clase = "+objclase);
+            System.out.println("soy tabla");
+        }else{
+            if(verificarRelacion(e.getPoint())){
+                System.out.println("soy relacion cliente");
+            }
         }
-        else
-        {
-          esfigura = verificarConector();
-          if (esfigura)
-          {
-            fs = objconector.getEnlace();
-            po = objconector.getPuntoO();
-            pd = objconector.getPuntoD();
-            dif1 = new Point(p.x - fs.x, p.y - fs.y);
-            dif2 = new Point(p.x - po.x, p.y - po.y);
-            dif3 = new Point(p.x - pd.x, p.y - pd.y);
-            //System.out.println("SOY OBJECTO, conector = "+objconector);
-          }
-        }      
     }
-    //objgraficador.actualizarGrafica();
   }
   
+  /**
+   * cuando se suelta el raton
+   * @param e 
+   */
+  @Override
   public void mouseReleased(MouseEvent e)
-  {
-    p = e.getPoint();
+  {   
     if (modo.equals(TABLA))
-        enviarTabla();
-    if (modo.equals(CONECTOR))
-    {
-      if (click == 1)
-      {
-        //origen = verificar(p);
-        origen_c = null;
-        if (verificar(p))
-        {
-          o = new Point(p);
-          click = 2;
-        }
-        else
-          modo = PUNTERO;
-      }
-      else
-      {
-        //destino = verificar(p);
-        destino_c = null;
-        if (verificar(p))
-        {
-          d = new Point(p);
-          click = 1;
-          enviarConector();
-        }
-        else
-          modo = PUNTERO;
-      }
-    }
+        enviarTabla(e.getPoint());
+    
     objgraficador.actualizarGrafica();
   }
 
+  @Override
   public void mouseClicked(MouseEvent e)
   {
     int cont = e.getClickCount();
       
-    if (esfigura && objTabla != null && cont == 2)
+    if (objTabla != null && cont == 2)
     {
-      form2 = new frmTabla(objcliente, "?", true);
-      form2.cargarPropiedad(this, objTabla);
-      form2.setVisible(true);
+        form2 = new frmTabla(frmClient, "?", true);
+        form2.cargarPropiedad(this, objTabla);
+        form2.setVisible(true);
+    }else{
+        if(objconector != null && cont == 2){
+            formRel = new frmRelacion(frmClient, "Relacion", true);
+            formRel.cargarRelacion(this, objconector, false);
+            formRel.setVisible(true);
+        }
     }
-    
-    if (esfigura && objconector != null && cont == 2)
-    {
-      int iddestino = objconector.getDestino();
-      clsTabla destino_c = obtenerTabla(iddestino);
-      if (destino_c != null)
-      {
-        frmRelacion formConector = new frmRelacion(objcliente, "?", true);
-        formConector.cargarPropiedad(this, destino_c, objconector);
-        formConector.setVisible(true);
-      }
-    }
-    
-    /*
-     *       if (destino_c != null)
-      {
-        propiedadConector formConector = new propiedadConector(objcliente, "?", true);
-        formConector.cargarPropiedad(this, destino_c);
-        formConector.setVisible(true);
-      }
-     */
   }
   
+  @Override
   public void mouseEntered(MouseEvent e){}
+  @Override
   public void mouseExited(MouseEvent e){}
   
   
+  @Override
   public void mouseDragged(MouseEvent e) 
   {
-    //System.out.println("SOY DRAGGED => esfigra = "+esfigura+", actor="+objactor+", clase="+objclase+", conector="+objconector);
-    if (esfigura)
-    {
-      pm = e.getPoint();
-      if (objTabla != null)
-        enviarCoordenadaTabla(dif1, dif2, dif3, dif4, pm, objTabla);
-      if (objconector != null)
-        enviarCoordenadaRelacion(dif1, dif2, dif3, pm, objconector);
-    }
+      
+    if (objTabla != null)
+      enviarCoordenadaTabla(e.getPoint(), objTabla);
   }
 
+  @Override
   public void mouseMoved(MouseEvent e){}  
   //**************** PARA LAS PROPIEDADES *********************
   //******** ATRIBUTO
@@ -508,7 +291,7 @@ public class control implements MouseListener, MouseMotionListener
   {
     try 
     { objservidor.addColumna(id, objatributo); }
-    catch (Exception ex) 
+    catch (RemoteException ex) 
     { ex.printStackTrace(); }
   }
   
@@ -516,7 +299,7 @@ public class control implements MouseListener, MouseMotionListener
   {
     try 
     { objservidor.delColumna(id, nombre_atributo); }
-    catch (Exception ex) 
+    catch (RemoteException ex) 
     { ex.printStackTrace(); }
   }
   
@@ -536,7 +319,7 @@ public class control implements MouseListener, MouseMotionListener
         objTabla = null;
       }
     }
-    catch (Exception ex) 
+    catch (RemoteException ex) 
     { ex.printStackTrace(); }
   }
   
@@ -550,7 +333,7 @@ public class control implements MouseListener, MouseMotionListener
         objconector = null;
       }
     }
-    catch (Exception ex) 
+    catch (RemoteException ex) 
     { ex.printStackTrace(); }
   }
 }

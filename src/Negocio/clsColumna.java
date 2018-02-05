@@ -4,93 +4,74 @@ import java.io.Serializable;
 
 public class clsColumna implements Serializable
 {
-  //private int id;
-  private String nombre;
-  private String tipo;
-  private String acceso;
-  
-  /*private boolean add = false;
-  private boolean del = false;*/
-  
-  public clsColumna()
-  {
-    nombre = tipo = "";
-    acceso = "private";
-  }
+    private String nombre;
+    private String tipo;
+    private String size;
+    private String scala;
+    private boolean primaryKey;
 
-  public clsColumna(String nombre, String tipo, String acceso)
-  {
-    // this.id     = id;
-    this.nombre = nombre;
-    this.tipo   = tipo;
-    this.acceso = acceso;
-  }
+    public clsColumna()
+    {
+      nombre = tipo = "";
+    }
+
+    public clsColumna(String nombre, String tipo, String size, String scala, boolean key)
+    {
+      this.nombre = nombre;
+      this.tipo   = tipo;
+      this.size   = size;
+      this.scala  = scala;
+      this.primaryKey = key;
+    }
+
+    public String getNombre()
+    {
+      return nombre;
+    }
+
+    public void setNombre(String nombre)
+    {
+      this.nombre = nombre;
+    }
+
+    public String getTipo()
+    {
+      return tipo;
+    }
+
+    public void setTipo(String tipo)
+    {
+      this.tipo = tipo;
+    }
+
+    @Override
+    public String toString()
+    {
+      return nombre;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String getScala() {
+        return scala;
+    }
+
+    public void setScala(String scala) {
+        this.scala = scala;
+    }
+
+    public boolean isPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setPrimaryKey(boolean primaryKey) {
+        this.primaryKey = primaryKey;
+    }  
   
-  //  SELECTORES
-  /*public int getId()
-  { 
-    return id;
-  }
-  
-  public void setId(int id)
-  {
-    this.id = id;
-  }*/
-  
-  public String getNombre()
-  {
-    return nombre;
-  }
-
-  public void setNombre(String nombre)
-  {
-    this.nombre = nombre;
-  }
-
-  public String getTipo()
-  {
-    return tipo;
-  }
-
-  public void setTipo(String tipo)
-  {
-    this.tipo = tipo;
-  }
-
-  public String getAcceso()
-  {
-    return acceso;
-  }
-
-  public void setAcceso(String acceso)
-  {
-    this.acceso = acceso;
-  }
-  
-  /*public boolean getAdd()
-  {
-    return add;
-  }
-
-  public void setAdd(boolean add)
-  {
-    this.add = add;
-  }
-  
-  public boolean getDel()
-  {
-    return del;
-  }
-
-  public void setDel(boolean del)
-  {
-    this.del = del;
-  }*/
-  //  FIN SELECTORES
-  
-  public String toString()
-  {
-    //return "acceso="+acceso+", tipo="+tipo+", nombre="+nombre;
-    return nombre;
-  }
 }

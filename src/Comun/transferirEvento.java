@@ -1,7 +1,6 @@
 package Comun;
 
 import Negocio.*;
-import java.awt.event.MouseEvent;
 import java.util.*;
 
 public class transferirEvento extends EventObject

@@ -1,5 +1,8 @@
 package Presentacion;
 
+import static Comun.Constantes.PUNTERO;
+import static Comun.Constantes.RELACION;
+import static Comun.Constantes.TABLA;
 import Control.control;
 
 import java.awt.BorderLayout;
@@ -19,22 +22,16 @@ import javax.swing.border.*;
 
 public class barraToolsCase extends JPanel implements MouseListener, MouseMotionListener
 {
-  private String diagrama[] = {"Puntero", "Relacion", "Tabla"};
-  private String imagen[] = {"cursor.jpg", "conector.jpg", "tabla.jpg"};
-  private control objcontrol;
+  private final String diagrama[] = {PUNTERO, RELACION, TABLA};
+  private final String imagen[] = {"cursor.jpg", "conector.jpg", "tabla.jpg"};
+  private final control objcontrol;
   
   public barraToolsCase(control objcontrol)
   {
     this.objcontrol = objcontrol;
     
-    //this.setLayout(new FlowLayout());
     this.setLayout(new GridLayout(6, 1, 0, 5));
     this.setBounds(20, 5, 520, 35);
-    //this.setBackground(new Color(165, 165, 165));
-    //this.setPreferredSize(new Dimension(120, ));
-    //this.setDoubleBuffered(true);
-    //this.addMouseListener(objcontrol);
-    //this.addMouseMotionListener(objcontrol);
     cargarComponente();
   }
   
@@ -55,7 +52,7 @@ public class barraToolsCase extends JPanel implements MouseListener, MouseMotion
       //p[i].setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
       p[i].addMouseListener(this);
       p[i].addMouseMotionListener(this);
-      p[i].setPreferredSize(new Dimension(120, 120));
+      p[i].setPreferredSize(new Dimension(80, 80));
       //p[i].setSize(80, 20);
       //p[i].setBorder(BorderFactory.createEmptyBorder());
       //p[i].setBorder(BorderFactory.createLineBorder(Color.red));
@@ -88,7 +85,7 @@ public class barraToolsCase extends JPanel implements MouseListener, MouseMotion
   {
      JPanel o = (JPanel) e.getSource();
      System.out.println("PRESIONO mouse pressed : "+o.getName());
-     objcontrol.setModo(o.getName());
+     objcontrol.setModo(o.getName());     
   }
   
   /**

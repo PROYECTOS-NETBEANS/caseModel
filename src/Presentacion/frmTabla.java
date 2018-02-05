@@ -1,26 +1,21 @@
 package Presentacion;
 
+import Comun.Constantes;
 import Control.control;
 
 import Negocio.*;
 import java.awt.*;
 import java.awt.Rectangle;
 import java.awt.event.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-
 import java.awt.event.MouseEvent;
-
-import java.rmi.RemoteException;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -30,72 +25,43 @@ public class frmTabla extends JDialog
   private JTabbedPane tbpropiedad = new JTabbedPane();
   private JPanel pgeneral = new JPanel(null);
   private JPanel patributos = new JPanel(null);
-  private JPanel pmetodos = new JPanel(null);
   
   private JLabel glnombre = new JLabel();
   private JTextField gtfnombre = new JTextField();
-  private JLabel glestereotipo = new JLabel();
-  private JComboBox gcbestereotipo = new JComboBox();
-  private JPanel gpacceso = new JPanel(null);
-  /*private JButton gbaceptar = new JButton();
-  private JButton gbcancelar = new JButton();*/
   
   private JLabel alnombre = new JLabel();
   private JTextField atfnombre = new JTextField();
   private JLabel altipo = new JLabel();
+  
   private JComboBox acbtipo = new JComboBox();
-  private JPanel apacceso = new JPanel(null);
-  private JRadioButton arbprivate = new JRadioButton();
-  private JRadioButton arbprotected = new JRadioButton();
-  private JRadioButton arbpublic = new JRadioButton();
-  /*private JButton abaceptar = new JButton();
-  private JButton abcancelar = new JButton();*/
+  
+  private final JLabel altamaño = new JLabel();
+  private final JTextField attamaño = new JTextField();
+  
+  private final JLabel alscala = new JLabel();
+  private final JTextField atscala = new JTextField();  
+  
+  private JCheckBox achprimarykey = new JCheckBox();
+  
   private JScrollPane aspatributo = new JScrollPane();
-  private JList alatributos = new JList();
+  
+  private DefaultListModel modelo = new DefaultListModel();
+  private JList alcolumnas = new JList(modelo);
+  
+  
   private JButton abadicionar = new JButton();
-  private JButton abeliminar = new JButton();
-  
-  
-  private JLabel mlnombre = new JLabel();
-  private JTextField mtfnombre = new JTextField();
-  private JLabel mlretorno = new JLabel();
-  private JComboBox mcbretorno = new JComboBox();
-  private JButton mbparam = new JButton();
-  private JPanel mpacceso = new JPanel(null);
-  private JRadioButton mrbprivate = new JRadioButton();
-  private JRadioButton mrbprotected = new JRadioButton();
-  private JRadioButton mrbpublic = new JRadioButton();
-  /*private JButton mbaceptar = new JButton();
-  private JButton mbcancelar = new JButton();*/
-  private JScrollPane mspmetodo = new JScrollPane();
-  private JList mlmetodos = new JList();
-  private JButton mbadicionar = new JButton();
-  private JButton mbeliminar = new JButton();
-  
-  private JButton baceptar; 
-  private JButton bcancelar;
+  private JButton abeliminar = new JButton();  
   
   private control objcontrol;
   
   private clsTabla objclase;
- // private conector objconector;
-  
-  private LinkedList<clsColumna> atributo;
-  private LinkedList<clsParametro> parametro;  
-  
-  //**************** DIALOGO PARA LOS EL FORMULARIO PARAMETROS *****************
-  private JLabel jLabel1;
-  private JLabel jLabel2;
-  private JTextField jTextField1;
-  private JComboBox jComboBox1;
-  private JScrollPane jScrollPane1;
-  private JList jList1;
-  private JButton jButton1;
-  private JButton jButton2;
-  private JButton jButton3;
-  private JButton jButton4;
-  private JDialog dparametro;  
 
+  private final JButton btnAceptar = new JButton();
+  private final JButton btnCancelar = new JButton();
+  
+  private LinkedList<clsColumna> columnas;
+
+    
   public frmTabla(Frame parent, String title, boolean modal)
   {
     super(parent, title, modal);
@@ -108,7 +74,7 @@ public class frmTabla extends JDialog
       System.out.println("************* CARGAR PROPIEDAD => tipo=");
       this.objcontrol = objcontrol;
       this.objclase = objclase;
-      atributo = objclase.getColumnas();
+      columnas = objclase.getColumnas();
       jbInit();
     }
     catch (Exception e)
@@ -117,12 +83,32 @@ public class frmTabla extends JDialog
 
   private void jbInit() throws Exception
   {
+    btnAceptar.setText("Aceptar");
+    btnAceptar.setBounds(new Rectangle(260, 145, 95, 25));
+    btnAceptar.addMouseListener(new MouseAdapter()
+        {
+          @Override
+          public void mousePressed(MouseEvent e)
+          {
+            btnaceptar_mousePressed(e);
+          }
+    });
+
+    btnCancelar.setText("Cancelar");
+    btnCancelar.setBounds(new Rectangle(50, 145, 95, 25));
+    btnCancelar.addMouseListener(new MouseAdapter()
+        {
+          @Override
+          public void mousePressed(MouseEvent e)
+          {
+            btncancelar_mousePressed(e);
+          }
+    });    
+    
     this.setSize( new Dimension( 400, 300 ) );
     this.getContentPane().setLayout( null );
     tbpropiedad.setBounds(new Rectangle(10, 10, 375, 255));
     
-    baceptar  = new JButton();
-    bcancelar = new JButton();
     glnombre.setText("Nombre:");
     glnombre.setBounds(new Rectangle(5, 50, 65, 15));
     gtfnombre.setBounds(new Rectangle(75, 50, 165, 20));
@@ -133,103 +119,47 @@ public class frmTabla extends JDialog
             gtfnombre_keyReleased(e);
           }
         });
-    glestereotipo.setText("Estereotipo:");
-    glestereotipo.setBounds(new Rectangle(5, 95, 70, 15));
-    gcbestereotipo.setBounds(new Rectangle(75, 90, 165, 20));
-    gcbestereotipo.addItem("Interfaz");
-    gcbestereotipo.addItem("Proceso");
-    gcbestereotipo.addItem("Entidad");
-    gpacceso.setBounds(new Rectangle(250, 45, 105, 115));
-    gpacceso.setBorder(BorderFactory.createTitledBorder("Acceso"));
     
-    baceptar.setText("Aceptar");
-    baceptar.setBounds(new Rectangle(30, 135, 85, 25));
-    baceptar.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            baceptar_mousePressed(e);
-          }
-        });
-    bcancelar.setText("Cancelar");
-    bcancelar.setBounds(new Rectangle(135, 135, 85, 25));
-    bcancelar.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            bcancelar_mousePressed(e);
-          }
-        });
     pgeneral.add(glnombre, null);
     pgeneral.add(gtfnombre, null);
-    pgeneral.add(glestereotipo, null);
-    pgeneral.add(gcbestereotipo, null);
-    pgeneral.add(gpacceso, null);
-    pgeneral.add(bcancelar, null);
-    pgeneral.add(baceptar, null);
+    pgeneral.add(btnAceptar, null);
+    pgeneral.add(btnCancelar, null);
     
-    baceptar  = new JButton();
-    bcancelar = new JButton();
     alnombre.setText("Nombre:");
     alnombre.setBounds(new Rectangle(10, 15, 65, 15));
     atfnombre.setBounds(new Rectangle(80, 15, 170, 20));
+    
+    
+    acbtipo.addItemListener(new ItemListener() {
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                deshabilitarControles(e.getItem().toString());
+            }            
+        }
+    });
     altipo.setText("Tipo:");
-    altipo.setBounds(new Rectangle(10, 60, 70, 15));
-    acbtipo.setBounds(new Rectangle(80, 55, 170, 20));
-    apacceso.setBounds(new Rectangle(255, 10, 105, 115));
-    apacceso.setBorder(BorderFactory.createTitledBorder("Acceso"));
-    arbprivate.setText("private");
-    arbprivate.setBounds(new Rectangle(10, 25, 85, 20));
-    arbprivate.setSelected(true);
-    arbprivate.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            arbprivate_mouseClicked(e);
-          }
-        });
-    arbprotected.setText("protected");
-    arbprotected.setBounds(new Rectangle(10, 55, 85, 20));
-    arbprotected.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            arbprotected_mouseClicked(e);
-          }
-        });
-    arbpublic.setText("public");
-    arbpublic.setBounds(new Rectangle(10, 85, 85, 20));
-    arbpublic.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            arbpublic_mouseClicked(e);
-          }
-        });
-    baceptar.setText("Aceptar");
-    baceptar.setBounds(new Rectangle(35, 100, 85, 25));
-    baceptar.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            baceptar_mousePressed(e);
-          }
-        });
-    bcancelar.setText("Cancelar");
-    bcancelar.setBounds(new Rectangle(140, 100, 85, 25));
-    bcancelar.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            bcancelar_mousePressed(e);
-          }
-        });
+    altipo.setBounds(new Rectangle(10, 40, 70, 15));
+    acbtipo.setBounds(new Rectangle(80, 40, 170, 20));
+    
+    altamaño.setText("Tamaño:");
+    altamaño.setBounds(new Rectangle(10, 65, 70, 15));
+    attamaño.setBounds(new Rectangle(80, 65, 50, 20));
+
+    alscala.setText("Escala:");
+    alscala.setBounds(new Rectangle(10, 90, 70, 15));
+    atscala.setBounds(new Rectangle(80, 90, 50, 20));
+    
+    achprimarykey.setText("Llave primaria");
+    achprimarykey.setBounds(new Rectangle(80, 115, 170, 15));
+        
     aspatributo.setBounds(new Rectangle(15, 140, 230, 75));
-    aspatributo.getViewport().add(alatributos, null);
+    aspatributo.getViewport().add(alcolumnas, null);
     abadicionar.setText("Adicionar");
     abadicionar.setBounds(new Rectangle(260, 145, 95, 25));
     abadicionar.addMouseListener(new MouseAdapter()
         {
+          @Override
           public void mousePressed(MouseEvent e)
           {
             abadicionar_mousePressed(e);
@@ -239,6 +169,7 @@ public class frmTabla extends JDialog
     abeliminar.setBounds(new Rectangle(260, 185, 95, 25));
     abeliminar.addMouseListener(new MouseAdapter()
         {
+          @Override
           public void mousePressed(MouseEvent e)
           {
             abeliminar_mousePressed(e);
@@ -246,344 +177,158 @@ public class frmTabla extends JDialog
         });
     patributos.add(alnombre, null);
     patributos.add(atfnombre, null);
+    
     patributos.add(acbtipo, null);
     patributos.add(altipo, null);
-    apacceso.add(arbpublic, null);
-    apacceso.add(arbprotected, null);
-    apacceso.add(arbprivate, null);
-    patributos.add(apacceso, null);
-    patributos.add(baceptar, null);
-    patributos.add(bcancelar, null);
+    
+    patributos.add(altamaño, null);
+    patributos.add(attamaño, null);    
+    
+    patributos.add(alscala, null);
+    patributos.add(atscala, null);
+    
     patributos.add(aspatributo, null);
     patributos.add(abeliminar, null);
     patributos.add(abadicionar, null);
     
-    baceptar  = new JButton();
-    bcancelar = new JButton();
-    mbeliminar.setText("Eliminar");
-    mbeliminar.setBounds(new Rectangle(260, 185, 95, 25));
-    mbeliminar.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            mbeliminar_mousePressed(e);
-          }
-        });
-    mbadicionar.setText("Adicionar");
-    mbadicionar.setBounds(new Rectangle(260, 145, 95, 25));
-    mbadicionar.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            mbadicionar_mousePressed(e);
-          }
-        });
-    mspmetodo.setBounds(new Rectangle(15, 140, 230, 75));
-    mcbretorno.setBounds(new Rectangle(0, 0, 0, 0));
-    mpacceso.setBounds(new Rectangle(255, 10, 105, 115));
-    mpacceso.setBorder(BorderFactory.createTitledBorder("Acceso"));
-    mlnombre.setText("Nombre:");
-    mlnombre.setBounds(new Rectangle(10, 15, 50, 15));
-    mcbretorno.setBounds(new Rectangle(60, 55, 115, 20));
-    mlretorno.setText("Retorno:");
-    mlretorno.setBounds(new Rectangle(10, 60, 50, 15));
-    baceptar.setText("Aceptar");
-    baceptar.setBounds(new Rectangle(35, 100, 85, 25));
-    baceptar.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            baceptar_mousePressed(e);
-          }
-        });
-    bcancelar.setText("Cancelar");
-    bcancelar.setBounds(new Rectangle(140, 100, 85, 25));
-    bcancelar.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-            bcancelar_mousePressed(e);
-          }
-        });
-    mtfnombre.setBounds(new Rectangle(60, 15, 190, 20));
-    mrbprivate.setText("private");
-    mrbprivate.setBounds(new Rectangle(10, 25, 85, 20));
-    mrbprivate.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            mrbprivate_mouseClicked(e);
-          }
-        });
-    mrbprotected.setText("protected");
-    mrbprotected.setBounds(new Rectangle(10, 55, 85, 20));
-    mrbprotected.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            mrbprotected_mouseClicked(e);
-          }
-        });
-    mrbpublic.setText("public");
-    mrbpublic.setBounds(new Rectangle(10, 85, 85, 20));
-    mrbpublic.setSelected(true);
-    mrbpublic.addMouseListener(new MouseAdapter()
-        {
-          public void mouseClicked(MouseEvent e)
-          {
-            mrbpublic_mouseClicked(e);
-          }
-        });
-    mbparam.setText("Param");
-    mbparam.setBounds(new Rectangle(180, 55, 70, 20));
-    mbparam.addMouseListener(new MouseAdapter()
-        {
-          public void mousePressed(MouseEvent e)
-          {
-              System.out.println("no implementas");
-          }
-        });
-    pmetodos.add(mbparam, null);
-    pmetodos.add(mtfnombre, null);
-    pmetodos.add(bcancelar, null);
-    pmetodos.add(baceptar, null);
-    pmetodos.add(mlretorno, null);
-    pmetodos.add(mcbretorno, null);
-    pmetodos.add(mlnombre, null);
-    mpacceso.add(mrbpublic, null);
-    mpacceso.add(mrbprotected, null);
-    mpacceso.add(mrbprivate, null);
-    pmetodos.add(mpacceso, null);
-    pmetodos.add(mcbretorno, null);
-    mspmetodo.getViewport().add(mlmetodos, null);
-    pmetodos.add(mspmetodo, null);
-    pmetodos.add(mbadicionar, null);
-    pmetodos.add(mbeliminar, null);
-
+    patributos.add(achprimarykey, null);
+    
     tbpropiedad.addTab("General", pgeneral);
-    tbpropiedad.addTab("Atributos", patributos);
-    tbpropiedad.addTab("Metodos", pmetodos);
+    tbpropiedad.addTab("Columnas", patributos);
     this.getContentPane().add(tbpropiedad, null);
     
     cargarGeneral();
-    cargarAtributo();
+    cargarColumnas();
   }
   
   private void cargarGeneral()
   {
-    this.setTitle(objclase.getNombreTabla()+" - Propiedades de Tabla");
+    this.setTitle(objclase.getNombreTabla()+" - Columnas de Tabla");
     gtfnombre.setText(objclase.getNombreTabla());
   }
   
-  private void cargarAtributo()
+  private void cargarColumnas()
   {
     atfnombre.setText("");
-    acbtipo.removeAllItems();
-    acbtipo.addItem("int");
-    acbtipo.addItem("boolean");
-    acbtipo.addItem("float");
-    acbtipo.addItem("double");
-    acbtipo.addItem("String");
-    acbtipo.addItem("char");
-    acbtipo.setSelectedIndex(0);
     
-    int dim = atributo.size();
-    Vector<String> items = new Vector<String>();
-    cargarAtributoSelect(true, false, false);
+    acbtipo.removeAllItems();    
+    acbtipo.addItem(Constantes.ENTERO);
+    acbtipo.addItem(Constantes.DECIMAL);
+    acbtipo.addItem(Constantes.CADENA);
+    acbtipo.addItem(Constantes.FECHA);
+    
+    acbtipo.setSelectedIndex(0);
+    achprimarykey.setSelected(false);
+    int dim = columnas.size();
+    modelo.removeAllElements();
     for (int i = 0; i < dim; i++)
     {
-      clsColumna objatributo = atributo.get(i);
-      items.add(objatributo.getAcceso()+" "+objatributo.getNombre()+": "+objatributo.getTipo());
+      clsColumna objatributo = columnas.get(i);
+      modelo.addElement(objatributo.getNombre()+": "+objatributo.getTipo());
     }
-    alatributos.setListData(items);
+    alcolumnas.setModel(modelo);
   }
-    
-  private void cargarAtributoSelect(boolean op1, boolean op2, boolean op3)
-  {
-    arbprivate.setSelected(op1);
-    arbprotected.setSelected(op2);
-    arbpublic.setSelected(op3);
-  }
-  
-  private void cargarMetodoSelect(boolean op1, boolean op2, boolean op3)
-  {
-    mrbprivate.setSelected(op1);
-    mrbprotected.setSelected(op2);
-    mrbpublic.setSelected(op3);
-  }
-  
+        
   private void gtfnombre_keyReleased(KeyEvent e)
   {
-    this.setTitle(gtfnombre.getText()+" - Propiedades de una Clase");
+    this.setTitle(gtfnombre.getText()+" - Columnas de una Tabla");
   }
 
-  private void arbprivate_mouseClicked(MouseEvent e)
-  {
-    cargarAtributoSelect(true, false, false);
-  }
-  
-  private void arbprotected_mouseClicked(MouseEvent e)
-  {
-    cargarAtributoSelect(false, true, false);
-  }
-
-  private void arbpublic_mouseClicked(MouseEvent e)
-  {
-    cargarAtributoSelect(false, false, true);
-  }
-  
-  private void mrbprivate_mouseClicked(MouseEvent e)
-  {
-    cargarMetodoSelect(true, false, false);
-  }
-
-  private void mrbprotected_mouseClicked(MouseEvent e)
-  {
-    cargarMetodoSelect(false, true, false);
-  }
-
-  private void mrbpublic_mouseClicked(MouseEvent e)
-  {
-    cargarMetodoSelect(false, false, true);
-  }
-  
   private void abadicionar_mousePressed(MouseEvent e)
-  {
-    String acceso = "";
-    if (arbprivate.isSelected())
-      acceso = arbprivate.getText();
-    if (arbprotected.isSelected())
-      acceso = arbprotected.getText();
-    if (arbpublic.isSelected())
-      acceso = arbpublic.getText();
-
-
-    clsColumna objatributo = new clsColumna(atfnombre.getText(), acbtipo.getSelectedItem().toString(), acceso);
-    objcontrol.addColumna(objclase.getId(), objatributo);
-    /*atributo.add(objatributo);
-    cargarAtributo();*/
-  }
-  
-  private void abeliminar_mousePressed(MouseEvent e)
-  {
-    if (alatributos.getSelectedIndex() >= 0)
-    {
-      String aux = alatributos.getSelectedValue().toString();
-      int dim = atributo.size();
-      for (int i = 0; i < dim; i++)
-      {
-        clsColumna objatributo = atributo.get(i);
-        String cad = objatributo.getAcceso()+" "+objatributo.getNombre()+": "+objatributo.getTipo();
-        if (cad.equals(aux))
-        {
-          objcontrol.delColumna(objclase.getId(), objatributo.getNombre());
-          break;
-        }
-      }
-      //cargarAtributo();
-    }
-  }
-  
-  public void actualizarAtributo(clsTabla objclase)
-  {
-    this.objclase = objclase;
-    atributo = this.objclase.getColumnas();
-    cargarAtributo();
-  }
-
-  private void mbadicionar_mousePressed(MouseEvent e)
-  {
-      System.out.println("frmTabla.mbadicionar_mousePressed no implemnetato! x limbert");
-      /*
-    String acceso = "";
-    if (mrbprivate.isSelected())
-      acceso = mrbprivate.getText();
-    if (mrbprotected.isSelected())
-      acceso = mrbprotected.getText();
-    if (mrbpublic.isSelected())
-      acceso = mrbpublic.getText();
-    
-    clsMetodo objmetodo = new clsMetodo(mtfnombre.getText(), mcbretorno.getSelectedItem().toString(), acceso);
-    objmetodo.setParametros(parametro);
-    //System.out.println("+++++++++++++++++++++++ PASO INICIAL => tipo="+objclase.getTipo());
-    objcontrol.addMetodo(objclase.getId(), objmetodo, true);
-    */
-  }
-
-  private void mbeliminar_mousePressed(MouseEvent e)
-  {
-      System.out.println("frmTabla.mbeliminar_mousePressed no implemnet limbert");
-    /*
-    if (mlmetodos.getSelectedIndex() >= 0)
-    {
-      String aux = mlmetodos.getSelectedValue().toString();
-      int dim = metodo.size();
-      for (int i = 0; i < dim; i++)
-      {
-        clsMetodo objmetodo = metodo.get(i);
+  { try{
+        validar();
+        clsColumna objcolumna = new clsColumna(atfnombre.getText(), acbtipo.getSelectedItem().toString(), attamaño.getText(), atscala.getText(), achprimarykey.isSelected());        
+        modelo.addElement(objcolumna.getNombre()+": "+objcolumna.getTipo());
+        columnas.add(objcolumna);
+        objcontrol.addColumna(objclase.getId(), objcolumna);     
         
-        parametro = objmetodo.getParametros();
-        String pars = "";
-        int k = parametro.size();
-        for (int j = 0; j < k; j++)
-        {
-          clsParametro objparametro = parametro.get(j);
-          pars = pars + objparametro.getTipo()+" "+objparametro.getNombre()+",";
-        }
-        if (!pars.equals(""))
-          pars = pars.substring(0, pars.length()-1);
-        String cad = objmetodo.getAcceso()+" "+objmetodo.getNombre()+"("+pars+"): "+objmetodo.getRetorna();
-        if (cad.equals(aux))
-        {
-          //metodo.remove(i);
-          objcontrol.delMetodo(objclase.getId(), objmetodo, true);
-          break;
-        }
-      }
-      //cargarMetodo();
+    }catch(Exception ex ){
+       JOptionPane.showMessageDialog(this, ex.getMessage());
+       System.out.println("frmTabla.abadicionar_mousePressed");
     }
-    */
   }
- 
-  private void jButton1_mousePressed(MouseEvent e)
+  private void validar() throws Exception
   {
-    dparametro.setVisible(false);
-  }
-
-  private void jButton2_mousePressed(MouseEvent e)
-  {
-    parametro = new LinkedList<clsParametro>();
-    dparametro.setVisible(false);
-  }
-
-  private void jButton4_mousePressed(MouseEvent e)
-  {
-    if (jList1.getSelectedIndex() >= 0)
-    {
-      String aux = jList1.getSelectedValue().toString();
-      int dim = parametro.size();
-      for (int i = 0; i < dim; i++)
+        String m = "";       
+        if(atfnombre.getText().trim().length() <=0 )
+            m += "ingrese un nombre de columna \n";
+        
+        if(atfnombre.getText().indexOf(" ") > 0)
+            m += "ingrese un nombre de columna sin ESPACIOS \n";
+        
+        switch (acbtipo.getSelectedItem().toString()) {
+            case Constantes.CADENA:
+                if(attamaño.getText().trim().length() <= 0)
+                    m += "ingrese tamaño de cadena \n";
+                break;
+            case Constantes.DECIMAL:
+                if(atscala.getText().trim().length() <= 0)
+                    m += "ingrese nro de decimales \n";
+                if(attamaño.getText().trim().length() <= 0)
+                    m += "ingrese tamaño de decimal \n";                
+                break;
+            default:
+                 System.out.println("no se requiere validacion");
+        }
+       
+        if(m.length() > 0)
+            throw new Exception(m);
+  }  
+    private void abeliminar_mousePressed(MouseEvent e)
+    { 
+      if (alcolumnas.getSelectedIndex() >= 0)
       {
-        clsParametro objparametro = parametro.get(i);
-        String cad = objparametro.getNombre()+": "+objparametro.getTipo();
-        if (cad.equals(aux))
+      
+        String aux = alcolumnas.getSelectedValue().toString();
+        int dim = columnas.size();
+        for (int i = 0; i < dim; i++)
         {
-          parametro.remove(i);
-          break;
+          clsColumna objatributo = columnas.get(i);
+          String cad = objatributo.getNombre()+": "+objatributo.getTipo();
+          if (cad.equals(aux))
+          {
+            objcontrol.delColumna(objclase.getId(), objatributo.getNombre());
+            modelo.removeElement(cad);
+            columnas.remove(objatributo);
+            atfnombre.setText("");
+            break;
+          }
         }
       }
     }
-  }
-  
-  private void baceptar_mousePressed(MouseEvent e)
-  {
-    objclase.setNombreTabla(gtfnombre.getText());
-    objcontrol.enviarActualizarTabla(objclase, true);
-    this.setVisible(false);
-  }
-  
-  private void bcancelar_mousePressed(MouseEvent e)
-  {
-    this.setVisible(false);
-  }
+
+    public void actualizarAtributo(clsTabla objclase)
+    {
+      this.objclase = objclase;
+      columnas = this.objclase.getColumnas();
+      cargarColumnas();
+    }
+
+    public void btnaceptar_mousePressed(MouseEvent e){
+        if(gtfnombre.getText().indexOf(" ") > 0){
+           JOptionPane.showInternalMessageDialog(this, "ingrese un nombre de tabla sin ESPACIOS", "Error", JOptionPane.ERROR_MESSAGE); 
+        }else{
+            objclase.setNombreTabla(gtfnombre.getText());        
+            objcontrol.enviarActualizarTabla(objclase);
+            this.setVisible(false);            
+        }
+    }
+    public void btncancelar_mousePressed(MouseEvent e){
+        this.setVisible(false);
+    } 
+    public void deshabilitarControles(String tipo){
+        switch (tipo) {
+            case Constantes.CADENA:
+                atscala.setEnabled(false);
+                attamaño.setEnabled(true);
+                break;
+            case Constantes.DECIMAL: 
+                atscala.setEnabled(true);
+                attamaño.setEnabled(true);                
+                break;
+            default:
+                atscala.setEnabled(false);
+                attamaño.setEnabled(false);
+        }
+    }
 }

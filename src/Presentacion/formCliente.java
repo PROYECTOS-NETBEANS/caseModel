@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 
 
 import java.io.File;
+import java.io.IOException;
 
 
 import java.rmi.*;
@@ -24,9 +25,14 @@ import javax.swing.JMenuItem;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMISocketFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import plantillas.mysql;
+import plantillas.postgresql;
 
 public class formCliente extends JFrame implements interfaceEvento
 {
@@ -36,9 +42,6 @@ public class formCliente extends JFrame implements interfaceEvento
   private JButton benviar     = new JButton();
   
   public Registry registro;
-  private int puerto  = 3333;
-  private String ip   = "127.0.0.1";
-  private String name = "DIAGRAMA_SECUENCIA";
   private String usuario                    = "";
   private interfaceServidor objservidor     = null;
   private implementacionCliente objcliente  = null;
@@ -56,17 +59,18 @@ public class formCliente extends JFrame implements interfaceEvento
   private fileFilter objfilter = null;
   private String url = "C:/";
   private JMenu mTools = new JMenu();
-  private JMenuItem miGenCod = new JMenuItem();
+  private JMenuItem miGenPostg = new JMenuItem();
+  
+  private JMenuItem miGenMysql = new JMenuItem();
+  
   private JMenuItem miImportar = new JMenuItem();
   
   private JScrollPane spgraficador = new JScrollPane();
-  private graficadorDiagSec objgraficador;
+  private lienzo objgraficador;
   private barraToolsCase objdiagrama;
-  private barraMenu objmenu;
-  //private JPanel jPanel1 = new JPanel(new BorderLayout());
+  //private barraMenu objmenu;
   
   //************************ PANELES ***********************
-  //private JPanel pnorte = new JPanel(new FlowLayout());
   private JPanel pnorte = new JPanel(new BorderLayout());
   private JPanel psur = new JPanel(new BorderLayout()); 
   private JPanel pcentro = new JPanel(new BorderLayout()); 
@@ -94,19 +98,17 @@ public class formCliente extends JFrame implements interfaceEvento
 
   private void jbInit() throws Exception
   {
-    //this.getContentPane().setLayout( null );
     this.getContentPane().setLayout(new BorderLayout(0, 0));
-    this.setSize(new Dimension(650, 450));
+    this.setSize(new Dimension(450, 450));
     this.setTitle( "CLIENTE" );
-    this.setBounds(new Rectangle(10, 10, 650, 450));
+    this.setResizable (true);
+    //this.setBounds(new Rectangle(10, 10, 450, 450));
     this.setJMenuBar(jMenuBar1);
     this.addWindowListener(new WindowAdapter()
         {
           public void windowClosing(WindowEvent e)
           { this_windowClosing(e);  }
         });
-    //spchat.setBounds(new Rectangle(10, 200, 200, 110));
-    //tfchat.setBounds(new Rectangle(10, 320, 110, 25));
     benviar.setText("ENVIAR");
     benviar.setBounds(new Rectangle(125, 320, 85, 25));
     tachat.setEditable(false);
@@ -114,9 +116,7 @@ public class formCliente extends JFrame implements interfaceEvento
     spchat.getViewport().add(tachat, BorderLayout.CENTER);
     spchat.setPreferredSize(new Dimension(400, 100));
     JPanel pchat = new JPanel(new BorderLayout());
-    /*psur.add(spchat, );     //  SUR
-    psur.add(benviar);
-    psur.add(tfchat);*/
+
     pchat.add(spchat, BorderLayout.CENTER);
     JPanel penviar = new JPanel(new BorderLayout());
     penviar.add(tfchat, BorderLayout.CENTER);
@@ -140,7 +140,8 @@ public class formCliente extends JFrame implements interfaceEvento
     mEdicion.add(jMenuItem5);
     mEdicion.add(jMenuItem6);
     jMenuBar1.add(mEdicion);
-    mTools.add(miGenCod);
+    mTools.add(miGenPostg);
+    mTools.add(miGenMysql);
     jMenuBar1.add(mTools);
     Ayuda.add(jMenuItem7);
     Ayuda.addSeparator();
@@ -159,62 +160,21 @@ public class formCliente extends JFrame implements interfaceEvento
           }
         });
     miAbrir.setText("Abrir");
-    miAbrir.addActionListener(new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent e)
-          {
-            miAbrir_actionPerformed(e);
-          }
-        });
+    miAbrir.addActionListener(this::miAbrir_actionPerformed);
     miGuardar.setText("Guardar");
-    miGuardar.addActionListener(new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent e)
-          {
-            miGuardar_actionPerformed(e);
-          }
-        });
+    miGuardar.addActionListener(this::miGuardar_actionPerformed);
     miExportar.setText("Exportar");
-    miExportar.addActionListener(new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent e)
-          {
-            miExportar_actionPerformed(e);
-          }
-        });
+    miExportar.addActionListener(this::miExportar_actionPerformed);
     miSalir.setText("Salir");
-    miSalir.addActionListener(new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent e)
-          {
-            miSalir_actionPerformed(e);
-          }
-        });
+    miSalir.addActionListener(this::miSalir_actionPerformed);
     mTools.setText("Tools");
-    miGenCod.setText("Generar Codigo");
-    miGenCod.addActionListener(new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent e)
-          {
-            miGenCod_actionPerformed(e);
-          }
-        });
-    /*spgraficador.setBounds(new Rectangle(220, 45, 200, 400));
-    spgraficador.setSize(200, 400)*/
+    miGenPostg.setText("Generar Codigo Postgresql");
+    miGenPostg.addActionListener(this::miGenCod_actionPerformed);
+    miGenMysql.setText("Generar Codigo Mysql");
+    miGenMysql.addActionListener(this::miGenCodMysql_actionPerformed);    
+
     miImportar.setText("Importar Clase");
-    miImportar.addActionListener(new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent e)
-          {
-            miImportar_actionPerformed(e);
-          }
-        });
+    miImportar.addActionListener(this::miImportar_actionPerformed);
 
     jMenuItem1.setText("Guardar Como...");
     mEdicion.setText("Edición");
@@ -235,41 +195,40 @@ public class formCliente extends JFrame implements interfaceEvento
     this.getContentPane().add(pcentro, BorderLayout.CENTER);
   }
   
-  private void conectar() 
-  { //  OK
-    try
-    {
-      objcliente = new implementacionCliente();
-      objcliente.adicionarEscuchador(this);
-      registro = LocateRegistry.getRegistry(ip, puerto);
-      //LocateRegistry.createRegistry(puerto);
-      objservidor = (interfaceServidor)registro.lookup(name); //no es el nombre de la clase sino como se registro
-      objgraficador = new graficadorDiagSec(objservidor);
-      
-      usuario = JOptionPane.showInputDialog(this, "INTRODUCIR NOMBRE O NICK: ", "Usuario");
-      String mensajeconexion = objservidor.conectar(usuario, objcliente);
-      while(!mensajeconexion.equals(Mensaje.OK))
-      {
-        JOptionPane.showMessageDialog(this, Mensaje.NOT);
-        usuario = JOptionPane.showInputDialog(this, "INTRODUCIR NOMBRE O NICK: ", "Usuario");
-        mensajeconexion = objservidor.conectar(usuario, objcliente);
+    private void conectar() 
+    { //  OK
+        try{
+            objcliente = new implementacionCliente();
+            objcliente.adicionarEscuchador(this);
+            //RMISocketFactory.setSocketFactory(new sun.rmi.transport.proxy.RMIHttpToCGISocketFactory());
+            registro = LocateRegistry.getRegistry(Constantes.HOST, Constantes.PORT);
+            //registro = LocateRegistry.getRegistry(host);
+            
+            objservidor = (interfaceServidor)registro.lookup(Constantes.NAME);
+            objgraficador = new lienzo(objservidor);
+
+            usuario = JOptionPane.showInputDialog(this, "INTRODUCIR NOMBRE O NICK: ", "Usuario");
+            String mensajeconexion = objservidor.conectar(usuario, objcliente);
+            while(!mensajeconexion.equals(Mensaje.OK)){
+                JOptionPane.showMessageDialog(this, Mensaje.NOT);
+                usuario = JOptionPane.showInputDialog(this, "INTRODUCIR NOMBRE O NICK: ", "Usuario");
+                mensajeconexion = objservidor.conectar(usuario, objcliente);
+            }
+            this.setTitle("USUARIO: "+usuario);
+            objgraficador.getObjcontrol().setUsuario(usuario);
+            objgraficador.getObjcontrol().setFormCliente(this);
+        }
+        catch (RemoteException | NotBoundException | HeadlessException e){ 
+            e.printStackTrace();  
+        } catch (IOException ex) {
+          Logger.getLogger(formCliente.class.getName()).log(Level.SEVERE, null, ex);
       }
-      this.setTitle("USUARIO: "+usuario);
-      objgraficador.getObjcontrol().setUsuario(usuario);
-      objgraficador.getObjcontrol().setFormCliente(this);
+        objdiagrama   = new barraToolsCase(objgraficador.getObjcontrol());
+        //objmenu = new barraMenu(this, objgraficador.getObjcontrol());
+        spgraficador.getViewport().add(objgraficador);
+        //pnorte.add(objmenu);
+        poeste.add(objdiagrama, BorderLayout.NORTH);
     }
-    catch (RemoteException e)
-    { e.printStackTrace();  }
-    catch (NotBoundException e)
-    { e.printStackTrace(); }  
-    catch (Exception e) 
-    { e.printStackTrace();  }
-    objdiagrama   = new barraToolsCase(objgraficador.getObjcontrol());
-    objmenu = new barraMenu(this, objgraficador.getObjcontrol());
-    spgraficador.getViewport().add(objgraficador);
-    pnorte.add(objmenu);
-    poeste.add(objdiagrama, BorderLayout.NORTH);
-  }
   
   public void desconectar()
   {
@@ -416,38 +375,70 @@ public class formCliente extends JFrame implements interfaceEvento
     System.exit(1);
   }
 
-  private void miGenCod_actionPerformed(ActionEvent e)
-  {
-    generarCodigoFuente();
-  }
-  
-  public void generarCodigoFuente()
-  {
-    JFileChooser selectfile = new JFileChooser();
-    cargarFilter("Archivos JAVA", "java");
-    selectfile.setFileFilter(objfilter);
-    selectfile.setDialogTitle("Generando Archivo \".java\"...");
-    selectfile.setCurrentDirectory(new File(url)); //  especifico el directorio la primera vez
-    int result = selectfile.showDialog(this, "Generar");
-    if(result == JFileChooser.APPROVE_OPTION)
+    private void miGenCod_actionPerformed(ActionEvent e)
     {
-      try 
-      {
-        LinkedList<clsTabla> clase = objservidor.getObjds().getTablas();
-        int dim = clase.size();
-        //generarCodigo objgeneracodigo = new generarCodigo();
-        for (int i = 0; i < dim; i++)
-        {
-            clsTabla objclase = clase.get(i);
-           // objgeneracodigo.GeneraCodigo(objclase);
-            File a = new File(selectfile.getCurrentDirectory()+"\\"+objclase.getNombreTabla()+".java");
-           // objgeneracodigo.guardarFile(a);
+        try {
+            clsDiagrama diagram = objservidor.getObjds();
+            LinkedList<clsTabla> tablas = diagram.getTablas();
+            LinkedList<clsRelacion> relaciones = diagram.getRelacion();
+            
+            if(tablas.size() <= 0){
+                JOptionPane.showInternalInputDialog(this, "No tiene tablas para generar sql", "Sql", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            generarCodigoSql(tablas, relaciones);
+        } catch (RemoteException ex) {
+            Logger.getLogger(formCliente.class.getName()).log(Level.SEVERE, null, ex);
         }
-      }
-      catch (Exception ex) 
-      { ex.printStackTrace(); }
     }
-  }
+    
+    private void miGenCodMysql_actionPerformed(ActionEvent e)
+    {
+        try {
+            clsDiagrama diagram = objservidor.getObjds();
+            LinkedList<clsTabla> tablas = diagram.getTablas();
+            LinkedList<clsRelacion> relaciones = diagram.getRelacion();
+            
+            if(tablas.size() <= 0){
+                JOptionPane.showInternalInputDialog(this, "No tiene tablas para generar sql", "Sql", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            generarCodigoSqlMysql(tablas, relaciones);
+        } catch (RemoteException ex) {
+            Logger.getLogger(formCliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }    
+  
+    public void generarCodigoSqlMysql(LinkedList<clsTabla> tbls, LinkedList<clsRelacion> relaciones)
+    {    
+        JFileChooser selectfile = new JFileChooser();
+        cargarFilter("Archivos SQL", "sql");
+        selectfile.setFileFilter(objfilter);
+        selectfile.setCurrentDirectory(new File(url));
+        int result = selectfile.showSaveDialog(this);
+        if(result == JFileChooser.APPROVE_OPTION)
+        {
+              mysql sql = new mysql(relaciones, tbls);
+              File a = new File(selectfile.getSelectedFile().getPath()+".sql");
+              sql.guardarFile(sql.crearScript(), a);
+        }
+    }
+    public void generarCodigoSql(LinkedList<clsTabla> tbls, LinkedList<clsRelacion> relaciones)
+    {    
+      JFileChooser selectfile = new JFileChooser();
+      cargarFilter("Archivos SQL", "sql");
+      selectfile.setFileFilter(objfilter);
+      selectfile.setCurrentDirectory(new File(url));
+      int result = selectfile.showSaveDialog(this);
+      if(result == JFileChooser.APPROVE_OPTION)
+      {
+        postgresql sql = new postgresql(relaciones, tbls);
+        File a = new File(selectfile.getSelectedFile().getPath()+".sql");
+        sql.guardarFile(sql.crearScript(), a);
+      }
+    }
 
   private void miNuevo_actionPerformed(ActionEvent e)
   {
