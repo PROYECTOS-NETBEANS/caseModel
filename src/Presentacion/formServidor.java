@@ -19,7 +19,6 @@ public class formServidor
         e.printStackTrace();
     }
   }
-
   public static void main(String[] args)
   {
       formServidor frm = new formServidor();

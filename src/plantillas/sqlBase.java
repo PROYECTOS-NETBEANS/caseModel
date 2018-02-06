@@ -43,8 +43,8 @@ public abstract class sqlBase {
     
     public String createLlaveExterna(String tablaDestino, String colDestino, String tablaOrigen, String colOrigen){
         String m = "";
-        m += " ALTER TABLE " + tablaDestino + " ADD CONSTRAINT FK_" + tablaDestino + "_" + colDestino;
-        m += " FOREIGN KEY ("+ colDestino + ") REFERENCES " + tablaOrigen + " (" + colOrigen + ")  ON DELETE No Action ON UPDATE No Action " + SALTO_LINEA;
+        m += " ALTER TABLE " + tablaOrigen + " ADD CONSTRAINT FK_" + tablaOrigen + "_" + colOrigen;
+        m += " FOREIGN KEY ("+ colOrigen + ") REFERENCES " + tablaDestino + " (" + colDestino + ")  ON DELETE No Action ON UPDATE No Action " + SALTO_LINEA;
         return m;
     }
     private String eliminarTabla(String tabla){

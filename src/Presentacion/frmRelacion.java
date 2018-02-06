@@ -11,11 +11,9 @@ import Negocio.clsRelacion;
 import Negocio.clsTabla;
 import java.awt.Frame;
 import java.awt.Point;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.LinkedList;
-import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -318,12 +316,45 @@ public class frmRelacion extends JDialog {
                 m += "Por favor seleccione una tabla \n";
             else
                 if((cmborigencol.getSelectedIndex() < 0 ) || (cmbdestcol.getSelectedIndex() < 0))
-                    m += "Por favor seleccione una columna \n";
-        }        
+                    m += "Por favor seleccione una columna \n";         
+        }
         
+
+        if(m.length() <= 0){
+            String data = llaveForaneaEsValida();
+            if(data.length() > 0)
+                m+= data;
+        }
+            
         if(m.length() > 0)
             throw new Exception(m);
     }
+    
+    private String llaveForaneaEsValida(){
+        String m = "";
+        
+        // 1 :: tabla destino tiene que ser siempre llave primaria
+        int indexDestino = cmbdesttbl.getSelectedIndex();
+        clsTabla objDest = tablas.get(indexDestino);                
+        int indexColDest = cmbdestcol.getSelectedIndex();
+        clsColumna colDest = objDest.getColumnas().get(indexColDest);
+        
+        if(!colDest.isPrimaryKey())
+            m += "Columna Destino tiene que ser llave primaria \n ";
+        
+        // 2 :: tabla origen no tiene que ser llave primaria
+        int indexOrigen = cmborigentbl.getSelectedIndex();
+        clsTabla objOrig = tablas.get(indexOrigen);
+        int indexColOrigen = cmborigencol.getSelectedIndex();
+        clsColumna colOrig = objOrig.getColumnas().get(indexColOrigen);
+        if(colOrig.isPrimaryKey())
+            m += "Columna Origen no tiene que ser llave primaria \n";
+        
+        if(!colOrig.getTipo().equals(colDest.getTipo()))
+            m += "Columna Origen y Destino tienen que tener el mismo tipo \n";
+        
+        return m;
+    }    
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         this.setVisible(false);
     }//GEN-LAST:event_btnCancelarActionPerformed
