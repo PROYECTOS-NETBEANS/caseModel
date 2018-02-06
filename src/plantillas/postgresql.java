@@ -106,7 +106,8 @@ public class postgresql extends sqlBase{
     private String createSequence(String nombreTabla, LinkedList<clsColumna> columnas){
         String m = "";
         for (clsColumna columna : columnas) {
-            m += " CREATE SEQUENCE \"" + nombreTabla + "_" + columna.getNombre() + "_seq\" INCREMENT 1 START 1 ;" + SALTO_LINEA;
+            if(columna.isPrimaryKey())
+                m += " CREATE SEQUENCE \"" + nombreTabla + "_" + columna.getNombre() + "_seq\" INCREMENT 1 START 1 ;" + SALTO_LINEA;
         }
         
         return m;
