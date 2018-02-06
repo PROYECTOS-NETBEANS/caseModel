@@ -34,8 +34,8 @@ public abstract class sqlBase {
     public String createLlaveprimaria(String llaves, String tabla){
         if(llaves.length()<=0)
             return "";
-        
-        String m = " ALTER TABLE " + tabla + " ADD CONSTRAINT pk_" + tabla + " ";
+        String m = "/* creacion de llaves primarias*/ " + SALTO_LINEA;
+        m += " ALTER TABLE " + tabla + " ADD CONSTRAINT pk_" + tabla + " ";
         m += " PRIMARY KEY (" + llaves + ");" + SALTO_LINEA;
         
         return m;

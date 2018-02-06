@@ -60,8 +60,12 @@ public class mysql extends sqlBase{
                 }
             }            
             
-            if(columna.isPrimaryKey())
-                m += " " + data + " NOT NULL ";
+            if(columna.isPrimaryKey()){
+                if(columna.getTipo().equals(Constantes.ENTERO))
+                    m += " " + data + " NOT NULL AUTO_INCREMENT";
+                else
+                    m += " " + data + " NOT NULL ";
+            }
             else
                 m += " " + data;
             

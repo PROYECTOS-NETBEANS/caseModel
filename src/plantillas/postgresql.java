@@ -55,8 +55,12 @@ public class postgresql extends sqlBase{
                     data = columna.getNombre() + " " + resource.getValue(columna.getTipo());
                 }
             }
-            if(columna.isPrimaryKey())
-                m += " " + data + " NOT NULL ";
+            if(columna.isPrimaryKey()){
+                if(columna.getTipo().equals(Constantes.ENTERO))
+                    m += " " + data + " NOT NULL DEFAULT nextval(('\"" + nombreTabla + "_" + columna.getNombre() + "_seq\"'::text)::regclass) ";
+                else
+                    m += " " + data + " NOT NULL ";
+            }
             else
                 m += " " + data;
             
@@ -72,14 +76,21 @@ public class postgresql extends sqlBase{
     public String crearScript(){
         String m = "/* codigo creado por generador de codigo en ingenieria de softrware I */" + this.SALTO_LINEA;
         for (clsTabla tabla : tablas) {
-            m += this.createTable(tabla.getNombreTabla(), tabla.getColumnas());            
+            m += this.createTable(tabla.getNombreTabla(), tabla.getColumnas());
         }
-        
+        System.out.println("1 : " + m);
+        // adicionamos las sequencias
+        m += "/* generacion de secuencias */" + SALTO_LINEA;
+        for (clsTabla tabla : tablas) {
+            m += this.createSequence(tabla.getNombreTabla(), tabla.getColumnas());
+        }
+        System.out.println("2 : " + m);
         // adicionamos las llaves primarias
         for (clsTabla tabla : tablas) {
             String llaves = this.getLlavesPrimarias(tabla.getColumnas());            
-            m += this.createLlaveprimaria(llaves, tabla.getNombreTabla());            
+            m += this.createLlaveprimaria(llaves, tabla.getNombreTabla());
         }
+        System.out.println("3 : " + m);
         String tabla_destino = "";
         String tabla_origen  = "";
         
@@ -88,9 +99,18 @@ public class postgresql extends sqlBase{
             tabla_origen = this.getNombreTabla(relacion.getOrigen());
             m += this.createLlaveExterna(tabla_destino, relacion.getCol_nombre_destino(), tabla_origen, relacion.getCol_nombre_origen());            
         }        
-
+        System.out.println("4 : " + m);
+        
         return m;
     }
+    private String createSequence(String nombreTabla, LinkedList<clsColumna> columnas){
+        String m = "";
+        for (clsColumna columna : columnas) {
+            m += " CREATE SEQUENCE \"" + nombreTabla + "_" + columna.getNombre() + "_seq\" INCREMENT 1 START 1 ;" + SALTO_LINEA;
+        }
+        
+        return m;
+    } 
     /**
      * busca el nombre de la tabla a partir de su id de tabla
      * @param id de la tabla
